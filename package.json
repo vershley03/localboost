@@ -4,7 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma migrate reset"
   },
   "repository": {
     "type": "git",
@@ -16,5 +21,9 @@
   "bugs": {
     "url": "https://github.com/vershley03/localboost/issues"
   },
-  "homepage": "https://github.com/vershley03/localboost#readme"
+  "homepage": "https://github.com/vershley03/localboost#readme",
+  "devDependencies": {
+    "@prisma/client": "^5.22.0",
+    "prisma": "^5.22.0"
+  }
 }
