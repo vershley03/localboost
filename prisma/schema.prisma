@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  businesses    Business[]
+  subscriptions Subscription[]
+}
+
+model Business {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  category    String
+  country     String
+  city        String
+  description String?
+  website     String?
+  instagramUrl String?
+  brandColors String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user          User            @relation(fields: [userId], references: [id])
+  brandProfile  BrandProfile?
+  assets        Asset[]
+  contentCalendars ContentCalendar[]
+  aiGenerations AIGeneration[]
+}
+
+model BrandProfile {
+  id               String   @id @default(cuid())
+  businessId       String   @unique
+  tone             String
+  targetAudience   String
+  keywords         String[]
+  avoidWords       String[]
+  visualStyle      String
+  contentStrategy  String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id])
+}
+
+model Asset {
+  id          String   @id @default(cuid())
+  businessId  String
+  type        String   // image | video | document
+  url         String
+  createdAt   DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id])
+}
+
+model ContentCalendar {
+  id          String   @id @default(cuid())
+  businessId  String
+  date        DateTime
+  platform    String
+  contentType String
+  caption     String
+  hashtags    String[]
+  imageUrl    String?
+  videoUrl    String?
+  status      String   @default("draft") // draft | approved | published
+  createdAt   DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id])
+}
+
+model AIGeneration {
+  id          String   @id @default(cuid())
+  businessId  String
+  prompt      String
+  model       String
+  tokensUsed  Int
+  cost        Float
+  createdAt   DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id])
+}
+
+model Subscription {
+  id                String   @id @default(cuid())
+  userId            String
+  plan              String   // free | pro | enterprise
+  status            String   // active | canceled | past_due
+  stripeCustomerId  String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
