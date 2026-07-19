@@ -12,6 +12,7 @@ export interface ScheduledPost {
   title: string;
   caption: string;
   status: PostStatus;
+  imageUrl?: string; // small data URL thumbnail
 }
 
 export interface BrandProfile {
