@@ -22,6 +22,10 @@ export async function POST(request: Request) {
       quality: "standard",
     });
 
+    if (!response.data || response.data.length === 0 || !response.data[0]?.url) {
+      return NextResponse.json({ error: "Image generation failed or returned no data" }, { status: 500 });
+    }
+
     return NextResponse.json({ imageUrl: response.data[0].url });
   } catch (error) {
     console.error("OpenAI Image Error:", error);
