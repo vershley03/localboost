@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI();
-
 export async function POST(request: Request) {
   try {
     const { prompt, platforms, brand } = await request.json();
@@ -10,6 +8,8 @@ export async function POST(request: Request) {
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({ error: "Missing OpenAI API Key" }, { status: 500 });
     }
+
+    const openai = new OpenAI();
 
     const systemPrompt = `You are an expert social media manager for a local business.
 Business: ${brand.businessName}
