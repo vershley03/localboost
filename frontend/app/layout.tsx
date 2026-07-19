@@ -9,7 +9,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "LocalBoost AI — AI Marketing for Local Businesses",
+  title: "PinSpark — AI Marketing for Local Businesses",
   description: "Supercharge your local business with AI-powered content, brand strategy, and marketing automation. Built for small businesses that want to compete like enterprises.",
   icons: {
     icon: [
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   openGraph: {
-    title: "LocalBoost AI — AI Marketing for Local Businesses",
+    title: "PinSpark — AI Marketing for Local Businesses",
     description: "Grow your local business effortlessly with AI-powered posts, brand DNA and auto-scheduling.",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },

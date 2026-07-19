@@ -1,10 +1,10 @@
-# LocalBoost Logo — Brand Kit
+# PinSpark Logo — Brand Kit
 
-**Concept:** Local (map pin) + Boost (growth arrow) + AI (sparkle star)
+**Concept:** Pin (map pin) + Spark (growth arrow + sparkle star)
 
-The SaaS functionality: AI-powered marketing that boosts local businesses' visibility and foot traffic.
+The SaaS functionality: AI-powered marketing that sparks growth for local businesses.
 - **Location pin outline** = local business, community, physical presence
-- **Upward trending arrow inside pin** = growth, boost, more walk-ins, more engagement
+- **Upward trending arrow inside pin** = growth, spark, more walk-ins, more engagement
 - **Sparkle star top-right** = AI magic, automated content creation
 
 ## Colors (matches site theme)
@@ -40,11 +40,11 @@ In Next.js App Router:
 
 - `LogoMark` — full 1024 viewBox with gradient + detailed paths (for large displays)
 - `LogoIcon` — simplified 32x32 version for small UI (16-32px)
-- `LocalBoostLogo` — complete navbar component: gradient rounded square + symbol + text "LocalBoost" where "Boost" is gradient-text clipped. Used in:
+- `PinSparkLogo` — complete navbar component: gradient rounded square + symbol + text "PinSpark" where "Spark" is gradient-text clipped. Used in:
   - `app/page.tsx` landing navbar + footer
   - `components/dashboard/nav.tsx` sidebar + mobile topbar
 
-Wordmark: "Local" = #0F172A, "Boost" = gradient blue->violet to highlight the boost/value proposition.
+Wordmark: "Pin" = #0F172A, "Spark" = gradient blue->violet to highlight the spark/value proposition.
 
 ## Why it works at small size (favicon)
 

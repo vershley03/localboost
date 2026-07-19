@@ -8,7 +8,7 @@ import {
   PlugIcon,
   SparklesIcon,
 } from "@/components/icons";
-import { LocalBoostLogo } from "@/components/logo";
+import { PinSparkLogo } from "@/components/logo";
 
 export type TabId = "overview" | "creator" | "calendar" | "brand" | "integrations";
 
@@ -21,7 +21,7 @@ export const TABS: { id: TabId; label: string; icon: typeof HomeIcon }[] = [
 ];
 
 export function Logo({ iconSize = 32 }: { iconSize?: number }) {
-  return <LocalBoostLogo size={iconSize} />;
+  return <PinSparkLogo size={iconSize} />;
 }
 
 function NavItems({ active, onSelect }: { active: TabId; onSelect: (t: TabId) => void }) {

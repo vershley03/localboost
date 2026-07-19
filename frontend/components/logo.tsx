@@ -4,8 +4,8 @@ import type { SVGProps } from "react";
 type LogoProps = SVGProps<SVGSVGElement> & { size?: number };
 
 /**
- * LocalBoost Logo Mark
- * Concept: Local (map pin) + Boost (growth arrow inside) + AI (sparkle star)
+ * PinSpark Logo Mark
+ * Concept: Pin (map pin) + Spark (growth arrow + sparkle) 
  * Colors: Ocean Blue #0284C7 -> Sky #38BDF8 -> Violet #8B5CF6
  * The mark is a rounded square with gradient, white symbol inside.
  * Perfectly represents the SaaS: AI-powered local growth
@@ -97,10 +97,10 @@ export function LogoIcon({ size = 24, ...props }: LogoProps) {
 }
 
 /**
- * Full logo with wordmark: LocalBoost
- * Local = #0F172A, Boost = gradient
+ * Full logo with wordmark: PinSpark
+ * Pin = #0F172A, Spark = gradient
  */
-export function LocalBoostLogo({ size = 32, showText = true, iconSize }: { size?: number; showText?: boolean; iconSize?: number }) {
+export function PinSparkLogo({ size = 32, showText = true, iconSize }: { size?: number; showText?: boolean; iconSize?: number }) {
   const iSize = iconSize ?? size;
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 12, lineHeight: 0 }}>
@@ -135,7 +135,7 @@ export function LocalBoostLogo({ size = 32, showText = true, iconSize }: { size?
       </span>
       {showText && (
         <span style={{ fontSize: iSize * 0.56, fontWeight: 800, letterSpacing: "-0.5px", color: "#0F172A", fontFamily: "var(--font-jakarta), Plus Jakarta Sans, sans-serif", display: "inline-flex" }}>
-          Local<span style={{ backgroundImage: "linear-gradient(135deg,#0284C7 0%,#8B5CF6 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Boost</span>
+          Pin<span style={{ backgroundImage: "linear-gradient(135deg,#0284C7 0%,#8B5CF6 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Spark</span>
         </span>
       )}
     </span>

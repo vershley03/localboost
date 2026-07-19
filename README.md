@@ -1,4 +1,4 @@
-# LocalBoost
+# PinSpark
 
 AI-powered marketing assistant for local businesses — generate on-brand social posts, plan a content calendar, and publish to Instagram, Facebook, and Google Business from one dashboard.
 
