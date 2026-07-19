@@ -37,6 +37,15 @@ function friendlyDate(dateKey: string): string {
   return date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
 }
 
+function Sparkline({ color, points }: { color: string, points: string }) {
+  return (
+    <svg width="80" height="30" viewBox="0 0 80 30" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: "absolute", right: 24, bottom: 24, opacity: 0.6 }}>
+      <path d={points} stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d={`${points} L 80 30 L 0 30 Z`} fill={color} fillOpacity="0.1" />
+    </svg>
+  );
+}
+
 export function Overview({
   posts,
   generationCount,
@@ -87,6 +96,7 @@ export function Overview({
           </div>
           <div className="stat-tile-value">{124 + generationCount}</div>
           <div className="stat-tile-note positive">+12% this week</div>
+          <Sparkline color="var(--accent)" points="M0 25 Q 15 20, 30 25 T 55 15 T 80 5" />
         </div>
 
         <div className="stat-tile">
@@ -98,6 +108,7 @@ export function Overview({
           </div>
           <div className="stat-tile-value">4.2k</div>
           <div className="stat-tile-note positive">+800 new views</div>
+          <Sparkline color="var(--coral)" points="M0 28 Q 20 20, 40 22 T 65 10 T 80 2" />
         </div>
 
         <div className="stat-tile">
@@ -109,6 +120,7 @@ export function Overview({
           </div>
           <div className="stat-tile-value">{scheduledCount}</div>
           <div className="stat-tile-note">Across all platforms</div>
+          <Sparkline color="var(--violet)" points="M0 20 Q 25 25, 45 15 T 60 18 T 80 8" />
         </div>
       </div>
 

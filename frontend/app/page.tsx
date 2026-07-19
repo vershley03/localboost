@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   CheckIcon,
@@ -22,6 +22,50 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("Overview");
   const [isAnnual, setIsAnnual] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [typedText, setTypedText] = useState("");
+
+  useEffect(() => {
+    // Reveal animation
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+    // Typing animation with loop
+    const textToType = "We have a new vanilla latte special today!";
+    let i = 0;
+    let deleting = false;
+    let pauseTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const interval = setInterval(() => {
+      if (pauseTimer) return;
+
+      if (!deleting) {
+        if (i <= textToType.length) {
+          setTypedText(textToType.substring(0, i));
+          i++;
+        } else {
+          pauseTimer = setTimeout(() => { deleting = true; pauseTimer = null; }, 2000);
+        }
+      } else {
+        if (i > 0) {
+          i--;
+          setTypedText(textToType.substring(0, i));
+        } else {
+          pauseTimer = setTimeout(() => { deleting = false; pauseTimer = null; }, 500);
+        }
+      }
+    }, 80);
+
+    return () => {
+      observer.disconnect();
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <>
@@ -207,8 +251,8 @@ export default function Home() {
                     </div>
                     <h2 style={{ fontSize: '20px', fontWeight: 800 }}>Magic Content Creator</h2>
                     <p style={{ color: 'var(--text-muted)', marginTop: '8px', maxWidth: '300px' }}>Describe your latest update and let the AI draft perfect posts for all networks.</p>
-                    <div style={{ marginTop: '24px', background: '#F8FAFC', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', width: '100%', maxWidth: '400px', display: 'flex', gap: '8px' }}>
-                       <input type="text" placeholder="e.g. We have a new vanilla latte..." aria-label="Example prompt" style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '14px' }} disabled />
+                    <div className="typing-cursor" style={{ marginTop: '24px', background: '#F8FAFC', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', width: '100%', maxWidth: '400px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                       <span style={{ flex: 1, fontSize: '14px', color: 'var(--text-primary)', minHeight: '20px' }}>{typedText}</span>
                        <span className="btn btn-accent" style={{ padding: '8px 16px', fontSize: '13px' }} aria-hidden="true">Generate</span>
                     </div>
                   </div>
@@ -264,7 +308,7 @@ export default function Home() {
 
         <div className="bento-grid">
           {/* AI Content - Wide */}
-          <div className="bento-card wide">
+          <div className="bento-card wide reveal">
             <div className="bento-icon-wrapper blue">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
             </div>
@@ -283,7 +327,7 @@ export default function Home() {
           </div>
 
           {/* Brand DNA */}
-          <div className="bento-card">
+          <div className="bento-card reveal">
             <div className="bento-icon-wrapper coral">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
             </div>
@@ -294,7 +338,7 @@ export default function Home() {
           </div>
 
           {/* Calendar */}
-          <div className="bento-card">
+          <div className="bento-card reveal">
             <div className="bento-icon-wrapper sage">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
@@ -305,7 +349,7 @@ export default function Home() {
           </div>
 
           {/* Analytics - Wide */}
-          <div className="bento-card wide">
+          <div className="bento-card wide reveal">
             <div className="bento-icon-wrapper violet">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             </div>
@@ -336,7 +380,7 @@ export default function Home() {
               { n: '2', title: 'Define Your Brand', desc: 'Tell us your business name, what makes you special, and how you like to talk to customers.' },
               { n: '3', title: 'Review & Grow', desc: 'PinSpark generates your monthly calendar. You just hit approve, and we handle the rest.' },
             ].map((s, i) => (
-              <div key={i} className="step-row">
+              <div key={i} className="step-row reveal">
                 <div className="step-number-large">{s.n}</div>
                 <div className="step-content">
                   <div className="step-title">{s.title}</div>

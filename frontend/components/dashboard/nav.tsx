@@ -42,20 +42,39 @@ function NavItems({ active, onSelect }: { active: TabId; onSelect: (t: TabId) =>
   );
 }
 
+import { OrgSwitcher } from "./org-switcher";
+import { type Org } from "@/lib/store";
+
 export function Sidebar({
   active,
   onSelect,
   businessName,
+  orgs,
+  activeOrgId,
+  onSwitchOrg,
+  onCreateOrg,
 }: {
   active: TabId;
   onSelect: (t: TabId) => void;
   businessName: string;
+  orgs: Org[];
+  activeOrgId: string;
+  onSwitchOrg: (id: string) => void;
+  onCreateOrg: () => void;
 }) {
   return (
     <aside className="app-sidebar">
       <Link href="/" className="app-sidebar-logo">
         <Logo />
       </Link>
+      
+      <OrgSwitcher 
+        orgs={orgs}
+        activeOrgId={activeOrgId}
+        onSwitch={onSwitchOrg}
+        onCreate={onCreateOrg}
+      />
+
       <nav className="app-nav" aria-label="Dashboard">
         <NavItems active={active} onSelect={onSelect} />
       </nav>

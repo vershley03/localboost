@@ -8,6 +8,7 @@ import { MagicCreator } from "@/components/dashboard/magic-creator";
 import { CalendarView } from "@/components/dashboard/calendar-view";
 import { BrandProfileView } from "@/components/dashboard/brand-profile";
 import { Integrations } from "@/components/dashboard/integrations";
+import { OrgModal } from "@/components/dashboard/org-switcher";
 import {
   DEFAULT_BRAND,
   getBrand,
@@ -17,14 +18,22 @@ import {
   saveBrand,
   saveConnections,
   savePosts,
+  ensureMigrated,
+  getOrgs,
+  createOrg,
   type BrandProfile,
   type Connections,
   type ScheduledPost,
+  type Org,
 } from "@/lib/store";
 
 function DashboardInner() {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [ready, setReady] = useState(false);
+  const [orgs, setOrgs] = useState<Org[]>([]);
+  const [activeOrgId, setActiveOrgId] = useState<string>("");
+  const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
+
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
   const [brand, setBrand] = useState<BrandProfile>(DEFAULT_BRAND);
   const [connections, setConnections] = useState<Connections>({
@@ -35,23 +44,26 @@ function DashboardInner() {
   const [generationCount, setGenerationCount] = useState(0);
   const toast = useToast();
 
-  // Hydrate persisted state on the client. localStorage is unavailable during
-  // SSR/prerender, so this one-time sync from the external store must happen
-  // post-mount; content stays hidden behind `ready` until then.
+  const loadOrgData = (orgId: string) => {
+    setPosts(getPosts(orgId));
+    setBrand(getBrand(orgId));
+    setConnections(getConnections(orgId));
+    setGenerationCount(getGenerationCount(orgId));
+  };
+
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPosts(getPosts());
-    setBrand(getBrand());
-    setConnections(getConnections());
-    setGenerationCount(getGenerationCount());
+    const migratedId = ensureMigrated();
+    setActiveOrgId(migratedId);
+    setOrgs(getOrgs());
+    loadOrgData(migratedId);
     setReady(true);
 
     const params = new URLSearchParams(window.location.search);
     const connected = params.get("connected");
     const error = params.get("error");
     if (connected === "facebook") {
-      const next = { ...getConnections(), facebook: true };
-      saveConnections(next);
+      const next = { ...getConnections(migratedId), facebook: true };
+      saveConnections(migratedId, next);
       setConnections(next);
       setActiveTab("integrations");
       toast("Facebook Page connected");
@@ -71,27 +83,54 @@ function DashboardInner() {
 
   const updatePosts = (next: ScheduledPost[]) => {
     setPosts(next);
-    savePosts(next);
+    savePosts(activeOrgId, next);
   };
 
   const updateBrand = (next: BrandProfile) => {
     setBrand(next);
-    saveBrand(next);
+    saveBrand(activeOrgId, next);
+    setOrgs(getOrgs()); // Re-sync orgs list in case business name changed
   };
 
   const updateConnections = (next: Connections) => {
     setConnections(next);
-    saveConnections(next);
+    saveConnections(activeOrgId, next);
+  };
+
+  const handleSwitchOrg = (id: string) => {
+    setActiveOrgId(id);
+    loadOrgData(id);
+    // Persist active org id implicitly handled in the store, but we might want to call setActiveOrgId there too.
+    // Wait, the store handles saving it in createOrg/ensureMigrated, but we should probably expose setActiveOrgId from store.
+    // Let's just rely on loadOrgData fetching the correct namespace, but for now let's also update localStorage
+    window.localStorage.setItem("lb:active-org", JSON.stringify(id));
+  };
+
+  const handleCreateOrg = (name: string, category: string) => {
+    const newOrg = createOrg(name, category);
+    setOrgs(getOrgs());
+    setActiveOrgId(newOrg.id);
+    loadOrgData(newOrg.id);
+    setIsOrgModalOpen(false);
+    toast("Organization created successfully");
   };
 
   return (
     <div className="app-shell">
-      <Sidebar active={activeTab} onSelect={setActiveTab} businessName={brand.businessName} />
+      <Sidebar 
+        active={activeTab} 
+        onSelect={setActiveTab} 
+        businessName={brand.businessName}
+        orgs={orgs}
+        activeOrgId={activeOrgId}
+        onSwitchOrg={handleSwitchOrg}
+        onCreateOrg={() => setIsOrgModalOpen(true)}
+      />
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
         <MobileNav active={activeTab} onSelect={setActiveTab} />
         <main className="app-main">
-          {ready && (
-            <div className="app-main-inner" key={activeTab}>
+          {ready ? (
+            <div className="app-main-inner" key={`${activeOrgId}-${activeTab}`}>
               {activeTab === "overview" && (
                 <Overview
                   posts={posts}
@@ -102,6 +141,7 @@ function DashboardInner() {
               )}
               {activeTab === "creator" && (
                 <MagicCreator
+                  orgId={activeOrgId}
                   brand={brand}
                   onSchedule={(post) => updatePosts([...posts, post])}
                   onGenerated={setGenerationCount}
@@ -121,9 +161,33 @@ function DashboardInner() {
                 <Integrations connections={connections} onChange={updateConnections} />
               )}
             </div>
+          ) : (
+            <div className="app-main-inner">
+              <header className="app-page-header">
+                <div>
+                  <div className="skeleton-box" style={{ width: 240, height: 32, marginBottom: 8, borderRadius: 12 }}></div>
+                  <div className="skeleton-box" style={{ width: 300, height: 20, borderRadius: 8 }}></div>
+                </div>
+              </header>
+              <div className="stat-grid">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="stat-tile" style={{ height: 160, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.8)' }}>
+                    <div className="skeleton-box" style={{ width: "40%", height: 20, marginBottom: 12 }}></div>
+                    <div className="skeleton-box" style={{ width: "60%", height: 36, marginBottom: 12 }}></div>
+                    <div className="skeleton-box" style={{ width: "30%", height: 16 }}></div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </main>
       </div>
+
+      <OrgModal 
+        isOpen={isOrgModalOpen}
+        onClose={() => setIsOrgModalOpen(false)}
+        onSubmit={handleCreateOrg}
+      />
     </div>
   );
 }

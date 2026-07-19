@@ -71,10 +71,12 @@ function templateGenerate(prompt: string, platforms: Platform[], brand: BrandPro
 }
 
 export function MagicCreator({
+  orgId,
   brand,
   onSchedule,
   onGenerated,
 }: {
+  orgId: string;
   brand: BrandProfile;
   onSchedule: (post: ScheduledPost) => void;
   onGenerated: (count: number) => void;
@@ -185,7 +187,7 @@ export function MagicCreator({
 
     setVariants(results);
     setGenerating(false);
-    onGenerated(bumpGenerationCount(results.length));
+    onGenerated(bumpGenerationCount(orgId, results.length));
   };
 
   const regenerateVariant = async (index: number, platform: Platform) => {
