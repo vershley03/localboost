@@ -30,8 +30,8 @@ export default function Home() {
         </ul>
 
         <div className="navbar-cta">
-          <a href="/login" className="btn btn-ghost">Sign in</a>
-          <a href="/signup" className="btn btn-primary">Start free</a>
+          <a href="/dashboard" className="btn btn-ghost">Sign in</a>
+          <a href="/dashboard" className="btn btn-primary">Start free</a>
         </div>
       </nav>
 
@@ -73,7 +73,7 @@ export default function Home() {
         </p>
 
         <div className="hero-actions">
-          <a href="/signup" className="btn btn-primary btn-lg">
+          <a href="/dashboard" className="btn btn-primary btn-lg">
             Get started for free
           </a>
           <a href="#features" className="btn btn-outline btn-lg">
@@ -351,7 +351,7 @@ export default function Home() {
               <div style={{ fontSize: '48px', fontWeight: 800, margin: '16px 0', letterSpacing: '-1px' }}>$0<span style={{ fontSize: '16px', fontWeight: 500, color: 'var(--text-muted)' }}>/mo</span></div>
               <div style={{ height: '24px' }}></div> {/* Spacer for alignment */}
               <p style={{ color: 'var(--text-muted)', marginBottom: '24px', lineHeight: 1.5 }}>Perfect for trying out LocalBoost for a single location.</p>
-              <a href="/signup" className="btn btn-outline" style={{ width: '100%', marginBottom: '32px' }}>Start Free</a>
+              <a href="/dashboard" className="btn btn-outline" style={{ width: '100%', marginBottom: '32px' }}>Start Free</a>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <li style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '15px', color: 'var(--text-primary)' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg> 1 Business Profile</li>
                 <li style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '15px', color: 'var(--text-primary)' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg> 10 AI Generations/mo</li>
@@ -370,7 +370,7 @@ export default function Home() {
                 {isAnnual ? 'Billed $288 annually' : 'Billed monthly'}
               </div>
               <p style={{ color: 'var(--text-muted)', marginBottom: '24px', lineHeight: 1.5 }}>Everything you need to run your marketing on autopilot.</p>
-              <a href="/signup" className="btn btn-accent" style={{ width: '100%', marginBottom: '32px' }}>Start 14-Day Trial</a>
+              <a href="/dashboard" className="btn btn-accent" style={{ width: '100%', marginBottom: '32px' }}>Start 14-Day Trial</a>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <li style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '15px', color: 'var(--text-primary)' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg> Up to 3 Profiles</li>
                 <li style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '15px', color: 'var(--text-primary)' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg> Unlimited AI Content</li>
@@ -389,7 +389,7 @@ export default function Home() {
           <p className="cta-subtitle">
             Join thousands of local business owners saving 10+ hours a week with LocalBoost AI.
           </p>
-          <a href="/signup" className="btn btn-outline btn-lg" style={{ color: '#0F172A', border: 'none', padding: '16px 32px', fontSize: '18px' }}>
+          <a href="/dashboard" className="btn btn-outline btn-lg" style={{ color: '#0F172A', border: 'none', padding: '16px 32px', fontSize: '18px' }}>
             Start your free trial today
           </a>
           <div style={{ marginTop: '24px', color: 'rgba(255,255,255,0.7)', fontSize: '14px', fontWeight: 500 }}>
