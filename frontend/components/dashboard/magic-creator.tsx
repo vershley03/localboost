@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   CopyIcon,
   FacebookIcon,
@@ -11,6 +11,7 @@ import {
   SendIcon,
   SparklesIcon,
   XIcon,
+  RefreshIcon
 } from "@/components/icons";
 import { useToast } from "@/components/toast";
 import {
@@ -35,45 +36,7 @@ interface Variant {
   source: "openai" | "template";
 }
 
-// Local fallback when the AI backend is unavailable (no key, no credits,
-// offline). Output adapts to brand tone and platform so the flow still works.
-function templateGenerate(
-  prompt: string,
-  platforms: Platform[],
-  brand: BrandProfile,
-): Variant[] {
-  const topic = prompt.trim().replace(/\.+$/, "");
-  const keywords = brand.keywords.length
-    ? brand.keywords.map((k) => `#${k.replace(/\s+/g, "")}`).join(" ")
-    : "#local #community";
-
-  const toneOpeners: Record<string, string> = {
-    "Friendly & Approachable": "Hey neighbors! 👋",
-    "Professional & Corporate": `An update from ${brand.businessName}:`,
-    "Witty & Humorous": "Stop scrolling — this is important. 🚨",
-    "Energetic & Bold": "BIG NEWS. 🔥",
-  };
-  const opener = toneOpeners[brand.tone] ?? "Hello!";
-
-  const byPlatform: Record<Platform, (t: string) => string> = {
-    instagram: (t) =>
-      `${opener} ${t.charAt(0).toUpperCase() + t.slice(1)} — and we couldn't be more excited to share it with you. Come see for yourself, we're saving you a spot. ✨\n\n${keywords} #${brand.businessName.replace(/\s+/g, "")}`,
-    facebook: (t) =>
-      `${opener}\n\n${t.charAt(0).toUpperCase() + t.slice(1)}. We built ${brand.businessName} for this community, and updates like this are why we love what we do.\n\nDrop by this week and tell us what you think — your feedback shapes what we do next.`,
-    google: (t) =>
-      `${t.charAt(0).toUpperCase() + t.slice(1)} at ${brand.businessName}. Visit us this week to check it out — find our hours and directions below.`,
-  };
-
-  return platforms.map((p) => ({
-    id: newId(),
-    platform: p,
-    caption: byPlatform[p](topic),
-    source: "template",
-  }));
-}
-
-// Downscale an image file to a small JPEG data URL so it fits comfortably in
-// localStorage and in the vision request.
+// Downscale an image file
 function fileToDataUrl(file: File, maxDim = 768): Promise<string> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
@@ -97,6 +60,16 @@ function fileToDataUrl(file: File, maxDim = 768): Promise<string> {
   });
 }
 
+// Minimal fallback if the real API fails
+function templateGenerate(prompt: string, platforms: Platform[], brand: BrandProfile): Variant[] {
+  return platforms.map((p) => ({
+    id: newId(),
+    platform: p,
+    caption: `[Template Fallback] Check out what's new at ${brand.businessName}: ${prompt} ✨ #${p}`,
+    source: "template",
+  }));
+}
+
 export function MagicCreator({
   brand,
   onSchedule,
@@ -109,23 +82,27 @@ export function MagicCreator({
   const [prompt, setPrompt] = useState("");
   const [selected, setSelected] = useState<Platform[]>(["instagram", "facebook"]);
   const [generating, setGenerating] = useState(false);
+  const [generatingImage, setGeneratingImage] = useState(false);
+  const [loadingIdeas, setLoadingIdeas] = useState(false);
+  const [ideas, setIdeas] = useState<string[]>([]);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [image, setImage] = useState<string | null>(null);
+  
+  // Scheduling Modal State
+  const [scheduleVariant, setScheduleVariant] = useState<Variant | null>(null);
+  const [scheduleDate, setScheduleDate] = useState<string>("");
+  const [scheduleTime, setScheduleTime] = useState<string>("17:00");
+  
   const fileInput = useRef<HTMLInputElement>(null);
   const toast = useToast();
 
   const togglePlatform = (p: Platform) => {
-    setSelected((prev) =>
-      prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p],
-    );
+    setSelected((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
   };
 
   const pickImage = async (file: File | undefined) => {
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast("That file isn't an image", "error");
-      return;
-    }
+    if (!file.type.startsWith("image/")) return toast("That file isn't an image", "error");
     try {
       setImage(await fileToDataUrl(file));
     } catch {
@@ -133,10 +110,50 @@ export function MagicCreator({
     }
   };
 
-  const canGenerate = prompt.trim().length >= 8 && selected.length > 0 && !generating;
+  const handleGenerateImage = async () => {
+    if (!prompt) return toast("Type a prompt first to generate an image", "error");
+    setGeneratingImage(true);
+    try {
+      const res = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, brand })
+      });
+      const data = await res.json();
+      if (data.imageUrl) {
+        setImage(data.imageUrl);
+        toast("AI Image generated successfully!");
+      } else {
+        toast("Missing API Key or failed to generate", "error");
+      }
+    } catch {
+      toast("Error generating image", "error");
+    }
+    setGeneratingImage(false);
+  };
+
+  const generateIdeas = async () => {
+    setLoadingIdeas(true);
+    try {
+      const res = await fetch('/api/ideas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brand })
+      });
+      const data = await res.json();
+      if (data.ideas) {
+        setIdeas(data.ideas);
+      } else {
+        toast("Missing API Key or failed to get ideas", "error");
+      }
+    } catch {
+      toast("Failed to get ideas", "error");
+    }
+    setLoadingIdeas(false);
+  };
 
   const generate = async () => {
-    if (!canGenerate) return;
+    if (prompt.trim().length < 5 || selected.length === 0 || generating) return;
     setGenerating(true);
     setVariants([]);
 
@@ -145,38 +162,59 @@ export function MagicCreator({
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          platforms: selected,
-          brand,
-          image: image ?? undefined,
-        }),
+        body: JSON.stringify({ prompt, platforms: selected, brand, image: image ?? undefined }),
       });
       if (res.ok) {
         const data = await res.json();
-        results = (data.posts as { platform: Platform; caption: string }[])
-          .filter((p) => selected.includes(p.platform))
-          .map((p) => ({
+        if (data.posts) {
+          results = data.posts.map((p: any) => ({
             id: newId(),
             platform: p.platform,
             caption: p.caption,
             source: "openai" as const,
           }));
+        }
       }
-    } catch {
-      // network failure — fall through to template generator
-    }
+    } catch {}
 
     if (!results || results.length === 0) {
-      // Brief pause so the skeleton doesn't flash jarringly on instant fallback.
       await new Promise((r) => setTimeout(r, 600));
       results = templateGenerate(prompt, selected, brand);
-      toast("AI unavailable right now — using template drafts", "error");
+      toast("AI unavailable — using templates (Is OPENAI_API_KEY set?)", "error");
     }
 
     setVariants(results);
     setGenerating(false);
     onGenerated(bumpGenerationCount(results.length));
+  };
+
+  const regenerateVariant = async (index: number, platform: Platform) => {
+    setGenerating(true);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, platforms: [platform], brand }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.posts && data.posts.length > 0) {
+          const newVariants = [...variants];
+          newVariants[index].caption = data.posts[0].caption;
+          setVariants(newVariants);
+          toast("Draft regenerated!");
+        }
+      }
+    } catch {
+      toast("Failed to regenerate", "error");
+    }
+    setGenerating(false);
+  };
+
+  const updateVariantCaption = (index: number, newCaption: string) => {
+    const newVariants = [...variants];
+    newVariants[index].caption = newCaption;
+    setVariants(newVariants);
   };
 
   const copy = async (caption: string) => {
@@ -188,19 +226,28 @@ export function MagicCreator({
     }
   };
 
-  const schedule = (variant: Variant) => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+  const finalizeSchedule = () => {
+    if (!scheduleVariant || !scheduleDate) return;
     onSchedule({
       id: newId(),
-      date: toDateKey(tomorrow),
-      platform: variant.platform,
+      date: scheduleDate,
+      time: scheduleTime,
+      platform: scheduleVariant.platform,
       title: prompt.trim().slice(0, 48) || "New post",
-      caption: variant.caption,
+      caption: scheduleVariant.caption,
       status: "scheduled",
       imageUrl: image ?? undefined,
     });
-    toast("Scheduled for tomorrow — see it in your Calendar");
+    toast(`Scheduled for ${scheduleDate} at ${scheduleTime}`);
+    setScheduleVariant(null);
+  };
+
+  const suggestTime = (platform: Platform) => {
+    // Mock best times per platform
+    if (platform === 'instagram') setScheduleTime("18:00");
+    else if (platform === 'facebook') setScheduleTime("12:00");
+    else setScheduleTime("09:00");
+    toast("Applied suggested best time");
   };
 
   return (
@@ -209,33 +256,25 @@ export function MagicCreator({
         <div>
           <h1 className="app-page-title">Magic Creator</h1>
           <p className="app-page-subtitle">
-            Describe what&apos;s happening at {brand.businessName} — the AI drafts posts in your{" "}
-            {brand.tone.toLowerCase()} voice.
+            Describe what&apos;s happening at {brand.businessName} — the AI drafts posts in your {brand.tone.toLowerCase()} voice.
           </p>
         </div>
       </header>
 
       <div className="composer">
-        <label htmlFor="creator-prompt" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>
-          What&apos;s happening at your business?
-        </label>
         <textarea
           id="creator-prompt"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="e.g. We just got a new batch of Ethiopian coffee beans in..."
-          maxLength={280}
+          placeholder="What's the topic? (e.g. New coffee beans arriving today!)"
+          maxLength={500}
         />
 
         {image && (
           <div className="composer-attachment">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={image} alt="Attached to post" />
-            <button
-              className="composer-attachment-remove"
-              onClick={() => setImage(null)}
-              aria-label="Remove image"
-            >
+            <button className="composer-attachment-remove" onClick={() => setImage(null)}>
               <XIcon size={13} />
             </button>
           </div>
@@ -253,20 +292,21 @@ export function MagicCreator({
                 e.target.value = "";
               }}
             />
-            <button
-              className={`chip ${image ? "selected" : ""}`}
-              onClick={() => fileInput.current?.click()}
-              aria-label={image ? "Replace image" : "Add image"}
-            >
-              <ImageIcon size={15} />
-              {image ? "Replace image" : "Add image"}
+            <button className={`chip ${image ? "selected" : ""}`} onClick={() => fileInput.current?.click()}>
+              <ImageIcon size={15} /> Upload Photo
             </button>
+            <button className="chip" onClick={handleGenerateImage} disabled={generatingImage}>
+              {generatingImage ? <LoaderIcon size={15} className="spin" /> : <SparklesIcon size={15} />} 
+              Generate Image
+            </button>
+            
+            <div style={{ width: '1px', height: '24px', background: 'var(--border)', margin: '0 8px' }}></div>
+
             {PLATFORMS.map(({ id, label, icon: PlatformIcon }) => (
               <button
                 key={id}
                 className={`chip ${selected.includes(id) ? "selected" : ""}`}
                 onClick={() => togglePlatform(id)}
-                aria-pressed={selected.includes(id)}
               >
                 <PlatformIcon size={15} />
                 {label}
@@ -274,27 +314,49 @@ export function MagicCreator({
             ))}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <span className="composer-count">{prompt.length}/280</span>
-            <button className="btn btn-accent" onClick={generate} disabled={!canGenerate} style={{ opacity: canGenerate ? 1 : 0.5 }}>
+            <button className="btn btn-accent" onClick={generate} disabled={prompt.trim().length < 5 || generating}>
               {generating ? <LoaderIcon size={16} className="spin" /> : <SparklesIcon size={16} />}
-              {generating ? "Drafting..." : "Generate"}
+              {generating ? "Drafting..." : "Generate Posts"}
             </button>
           </div>
         </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 28 }}>
-        {generating &&
-          selected.map((p) => (
-            <div key={p} className="result-card" aria-hidden="true">
-              <div className="skeleton" style={{ width: 120, height: 24, marginBottom: 16 }} />
-              <div className="skeleton" style={{ width: "100%", height: 14, marginBottom: 8 }} />
-              <div className="skeleton" style={{ width: "92%", height: 14, marginBottom: 8 }} />
-              <div className="skeleton" style={{ width: "64%", height: 14 }} />
+      {/* Weekly Content Ideas State (If empty prompt) */}
+      {!prompt && variants.length === 0 && (
+        <div style={{ marginTop: '32px', background: '#FFFFFF', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)', textAlign: 'center' }}>
+          <div style={{ width: '48px', height: '48px', background: 'var(--accent-subtle)', color: 'var(--accent)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <SparklesIcon size={24} />
+          </div>
+          <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>Writer's Block?</h3>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Let AI generate a week of content ideas tailored perfectly for {brand.businessName}.</p>
+          
+          {ideas.length === 0 ? (
+            <button className="btn btn-primary" onClick={generateIdeas} disabled={loadingIdeas}>
+              {loadingIdeas ? "Brainstorming..." : "Generate Weekly Ideas"}
+            </button>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left', marginTop: '24px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: '8px' }}>Tap an idea to draft:</div>
+              {ideas.map((idea, i) => (
+                <button 
+                  key={i} 
+                  style={{ padding: '16px', background: '#F8FAFC', border: '1px solid var(--border)', borderRadius: '12px', textAlign: 'left', fontSize: '15px', color: 'var(--text-primary)', cursor: 'pointer', transition: 'all 0.2s' }}
+                  onClick={() => setPrompt(idea)}
+                  onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--accent)'}
+                  onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+                >
+                  {idea}
+                </button>
+              ))}
             </div>
-          ))}
+          )}
+        </div>
+      )}
 
-        {variants.map((variant) => {
+      {/* Generated Variants */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 28 }}>
+        {variants.map((variant, index) => {
           const meta = PLATFORMS.find((p) => p.id === variant.platform)!;
           const PlatformIcon = meta.icon;
           return (
@@ -306,25 +368,71 @@ export function MagicCreator({
                   </span>
                   {meta.label} draft
                 </span>
-                {variant.source === "template" && (
-                  <span className="badge badge-draft">Template</span>
-                )}
               </div>
-              <p className="result-caption">{variant.caption}</p>
+              
+              {/* INLINE EDITING: Textarea instead of static paragraph */}
+              <textarea 
+                className="result-caption" 
+                value={variant.caption}
+                onChange={(e) => updateVariantCaption(index, e.target.value)}
+                style={{ width: '100%', minHeight: '100px', border: '1px solid transparent', background: 'transparent', resize: 'none', padding: '8px', fontSize: '16px', lineHeight: '1.5', fontFamily: 'inherit', color: 'var(--text-primary)' }}
+                onFocus={(e) => e.currentTarget.style.border = '1px dashed var(--border)'}
+                onBlur={(e) => e.currentTarget.style.border = '1px solid transparent'}
+              />
+
               <div className="result-actions">
+                <button className="btn btn-outline btn-sm" onClick={() => regenerateVariant(index, variant.platform)}>
+                  <RefreshIcon size={14} />
+                  Regenerate
+                </button>
                 <button className="btn btn-outline btn-sm" onClick={() => copy(variant.caption)}>
                   <CopyIcon size={14} />
                   Copy
                 </button>
-                <button className="btn btn-accent btn-sm" onClick={() => schedule(variant)}>
+                <button className="btn btn-accent btn-sm" onClick={() => {
+                  const tmrw = new Date(); tmrw.setDate(tmrw.getDate() + 1);
+                  setScheduleDate(toDateKey(tmrw));
+                  setScheduleVariant(variant);
+                }}>
                   <SendIcon size={14} />
-                  Schedule
+                  Schedule...
                 </button>
               </div>
             </article>
           );
         })}
       </div>
+
+      {/* Scheduling Modal */}
+      {scheduleVariant && (
+        <div className="modal-overlay" onClick={() => setScheduleVariant(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Schedule for {scheduleVariant.platform.charAt(0).toUpperCase() + scheduleVariant.platform.slice(1)}</h2>
+              <button className="icon-btn" onClick={() => setScheduleVariant(null)}><XIcon size={18} /></button>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div>
+                <label className="field-label">Date</label>
+                <input type="date" className="input" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} />
+              </div>
+              
+              <div>
+                <label className="field-label">Time</label>
+                <input type="time" className="input" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
+                <button className="btn btn-outline btn-sm" onClick={() => suggestTime(scheduleVariant.platform)}>
+                  <SparklesIcon size={14} /> Auto-suggest best time
+                </button>
+                <button className="btn btn-accent" onClick={finalizeSchedule}>Confirm Schedule</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

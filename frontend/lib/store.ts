@@ -8,6 +8,7 @@ export type PostStatus = "draft" | "scheduled" | "published";
 export interface ScheduledPost {
   id: string;
   date: string; // yyyy-mm-dd
+  time?: string; // HH:mm
   platform: Platform;
   title: string;
   caption: string;
