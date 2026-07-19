@@ -14,13 +14,9 @@ export async function GET(request: Request) {
 
   if (code === 'mock_success_code_42') {
     // In a real flow, we would exchange the code for a short-lived token,
-    // then exchange that for a long-lived token via Facebook Graph API.
-    const mockAccessToken = 'mock_long_lived_token_999999';
-    
-    // We would also fetch the user's Pages and IG accounts:
-    // const pagesResponse = await fetch(`https://graph.facebook.com/v18.0/me/accounts?access_token=${mockAccessToken}`);
-    const mockProviderId = 'mock_page_10101010';
-    const mockProfileName = 'The Daily Grind (Mock)';
+    // then exchange that for a long-lived token via Facebook Graph API,
+    // and fetch the user's Pages and IG accounts:
+    // const pagesResponse = await fetch(`https://graph.facebook.com/v18.0/me/accounts?access_token=${accessToken}`);
 
     // Save to Database (Commented out because Prisma push currently fails due to Supabase being paused)
     /*
