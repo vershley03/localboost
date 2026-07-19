@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-// import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
-// const prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -18,9 +18,33 @@ export async function GET(request: Request) {
     // and fetch the user's Pages and IG accounts:
     // const pagesResponse = await fetch(`https://graph.facebook.com/v18.0/me/accounts?access_token=${accessToken}`);
 
-    // Save to Database (Commented out because Prisma push currently fails due to Supabase being paused)
-    /*
+    // Save to Database
     try {
+      // Create a dummy user first to satisfy the business relation constraint
+      await prisma.user.upsert({
+        where: { id: 'mock_user_123' },
+        update: {},
+        create: {
+          id: 'mock_user_123',
+          email: 'mock@thedailygrind.com',
+          name: 'Sarah Jenkins'
+        }
+      });
+
+      // Then create the business
+      await prisma.business.upsert({
+        where: { id: 'mock_business_123' },
+        update: {},
+        create: {
+          id: 'mock_business_123',
+          userId: 'mock_user_123',
+          name: 'The Daily Grind (Mock)',
+          category: 'Coffee Shop',
+          country: 'US',
+          city: 'Seattle'
+        }
+      });
+
       await prisma.socialIntegration.create({
         data: {
           businessId: 'mock_business_123',
@@ -34,7 +58,6 @@ export async function GET(request: Request) {
       console.error("Database connection failed:", dbError);
       return NextResponse.redirect(new URL('/dashboard?error=database_unreachable', request.url));
     }
-    */
 
     // Redirect back to dashboard with a success flag
     return NextResponse.redirect(new URL('/dashboard?connected=facebook', request.url));
