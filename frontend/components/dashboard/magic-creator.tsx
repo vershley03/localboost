@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   CopyIcon,
   FacebookIcon,
   GoogleIcon,
+  ImageIcon,
   InstagramIcon,
   LoaderIcon,
   SendIcon,
   SparklesIcon,
+  XIcon,
 } from "@/components/icons";
 import { useToast } from "@/components/toast";
 import {
@@ -30,11 +32,16 @@ interface Variant {
   id: string;
   platform: Platform;
   caption: string;
+  source: "openai" | "template";
 }
 
-// Mock generator — will be replaced by a real AI backend call. Output adapts
-// to the brand tone and selected platforms so the flow feels genuine.
-function mockGenerate(prompt: string, platforms: Platform[], brand: BrandProfile): Variant[] {
+// Local fallback when the AI backend is unavailable (no key, no credits,
+// offline). Output adapts to brand tone and platform so the flow still works.
+function templateGenerate(
+  prompt: string,
+  platforms: Platform[],
+  brand: BrandProfile,
+): Variant[] {
   const topic = prompt.trim().replace(/\.+$/, "");
   const keywords = brand.keywords.length
     ? brand.keywords.map((k) => `#${k.replace(/\s+/g, "")}`).join(" ")
@@ -61,7 +68,33 @@ function mockGenerate(prompt: string, platforms: Platform[], brand: BrandProfile
     id: newId(),
     platform: p,
     caption: byPlatform[p](topic),
+    source: "template",
   }));
+}
+
+// Downscale an image file to a small JPEG data URL so it fits comfortably in
+// localStorage and in the vision request.
+function fileToDataUrl(file: File, maxDim = 768): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return reject(new Error("canvas unavailable"));
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/jpeg", 0.82));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("not an image"));
+    };
+    img.src = url;
+  });
 }
 
 export function MagicCreator({
@@ -77,6 +110,8 @@ export function MagicCreator({
   const [selected, setSelected] = useState<Platform[]>(["instagram", "facebook"]);
   const [generating, setGenerating] = useState(false);
   const [variants, setVariants] = useState<Variant[]>([]);
+  const [image, setImage] = useState<string | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
   const toast = useToast();
 
   const togglePlatform = (p: Platform) => {
@@ -85,18 +120,63 @@ export function MagicCreator({
     );
   };
 
+  const pickImage = async (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast("That file isn't an image", "error");
+      return;
+    }
+    try {
+      setImage(await fileToDataUrl(file));
+    } catch {
+      toast("Couldn't read that image", "error");
+    }
+  };
+
   const canGenerate = prompt.trim().length >= 8 && selected.length > 0 && !generating;
 
-  const generate = () => {
+  const generate = async () => {
     if (!canGenerate) return;
     setGenerating(true);
     setVariants([]);
-    // Simulated latency until the AI backend is wired up.
-    setTimeout(() => {
-      setVariants(mockGenerate(prompt, selected, brand));
-      setGenerating(false);
-      onGenerated(bumpGenerationCount(selected.length));
-    }, 1400);
+
+    let results: Variant[] | null = null;
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt,
+          platforms: selected,
+          brand,
+          image: image ?? undefined,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        results = (data.posts as { platform: Platform; caption: string }[])
+          .filter((p) => selected.includes(p.platform))
+          .map((p) => ({
+            id: newId(),
+            platform: p.platform,
+            caption: p.caption,
+            source: "openai" as const,
+          }));
+      }
+    } catch {
+      // network failure — fall through to template generator
+    }
+
+    if (!results || results.length === 0) {
+      // Brief pause so the skeleton doesn't flash jarringly on instant fallback.
+      await new Promise((r) => setTimeout(r, 600));
+      results = templateGenerate(prompt, selected, brand);
+      toast("AI unavailable right now — using template drafts", "error");
+    }
+
+    setVariants(results);
+    setGenerating(false);
+    onGenerated(bumpGenerationCount(results.length));
   };
 
   const copy = async (caption: string) => {
@@ -118,6 +198,7 @@ export function MagicCreator({
       title: prompt.trim().slice(0, 48) || "New post",
       caption: variant.caption,
       status: "scheduled",
+      imageUrl: image ?? undefined,
     });
     toast("Scheduled for tomorrow — see it in your Calendar");
   };
@@ -145,8 +226,41 @@ export function MagicCreator({
           placeholder="e.g. We just got a new batch of Ethiopian coffee beans in..."
           maxLength={280}
         />
+
+        {image && (
+          <div className="composer-attachment">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={image} alt="Attached to post" />
+            <button
+              className="composer-attachment-remove"
+              onClick={() => setImage(null)}
+              aria-label="Remove image"
+            >
+              <XIcon size={13} />
+            </button>
+          </div>
+        )}
+
         <div className="composer-footer">
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+            <input
+              ref={fileInput}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                pickImage(e.target.files?.[0]);
+                e.target.value = "";
+              }}
+            />
+            <button
+              className={`chip ${image ? "selected" : ""}`}
+              onClick={() => fileInput.current?.click()}
+              aria-label={image ? "Replace image" : "Add image"}
+            >
+              <ImageIcon size={15} />
+              {image ? "Replace image" : "Add image"}
+            </button>
             {PLATFORMS.map(({ id, label, icon: PlatformIcon }) => (
               <button
                 key={id}
@@ -192,6 +306,9 @@ export function MagicCreator({
                   </span>
                   {meta.label} draft
                 </span>
+                {variant.source === "template" && (
+                  <span className="badge badge-draft">Template</span>
+                )}
               </div>
               <p className="result-caption">{variant.caption}</p>
               <div className="result-actions">

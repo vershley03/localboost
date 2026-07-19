@@ -136,9 +136,14 @@ export function Overview({
               const PlatformIcon = PLATFORM_ICONS[post.platform];
               return (
                 <div key={post.id} className="content-row">
-                  <div className={`content-row-platform platform-${post.platform}`}>
-                    <PlatformIcon size={18} />
-                  </div>
+                  {post.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={post.imageUrl} alt="" className="content-row-thumb" />
+                  ) : (
+                    <div className={`content-row-platform platform-${post.platform}`}>
+                      <PlatformIcon size={18} />
+                    </div>
+                  )}
                   <div className="content-row-body">
                     <div className="content-row-title">{post.title}</div>
                     <div className="content-row-meta">
