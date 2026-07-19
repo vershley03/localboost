@@ -6,7 +6,7 @@ import {
   MenuIcon,
   XIcon,
 } from "@/components/icons";
-import { LocalBoostLogo } from "@/components/logo";
+import { PinSparkLogo } from "@/components/logo";
 
 const NAV_LINKS = [
   { href: "#features", label: "Features" },
@@ -15,7 +15,7 @@ const NAV_LINKS = [
 ];
 
 function LogoMark() {
-  return <LocalBoostLogo size={36} />;
+  return <PinSparkLogo size={36} />;
 }
 
 export default function Home() {
@@ -103,7 +103,7 @@ export default function Home() {
         </h1>
 
         <p className="hero-subtitle">
-          LocalBoost acts like a full-time marketing agency for your business.
+          PinSpark acts like a full-time marketing agency for your business.
           Generate beautiful social posts, ads, and local campaigns in seconds.
         </p>
 
@@ -125,7 +125,7 @@ export default function Home() {
               <span className="window-dot green" />
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                 <div style={{ background: '#FFFFFF', padding: '4px 16px', borderRadius: '6px', fontSize: '13px', color: '#94A3B8', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-                  app.localboost.com
+                  app.pinspark.com
                 </div>
               </div>
             </div>
@@ -258,7 +258,7 @@ export default function Home() {
           <div className="section-label">Features</div>
           <h2 className="section-title">Everything you need. <br/>None of the complexity.</h2>
           <p className="section-subtitle">
-            We built LocalBoost to feel like magic. It takes the heavy lifting out of marketing, so you can focus on running your business.
+            We built PinSpark to feel like magic. It takes the heavy lifting out of marketing, so you can focus on running your business.
           </p>
         </div>
 
@@ -334,7 +334,7 @@ export default function Home() {
             {[
               { n: '1', title: 'Connect Your Accounts', desc: 'Securely link your Instagram, Facebook, and Google Business profiles in one click.' },
               { n: '2', title: 'Define Your Brand', desc: 'Tell us your business name, what makes you special, and how you like to talk to customers.' },
-              { n: '3', title: 'Review & Grow', desc: 'LocalBoost generates your monthly calendar. You just hit approve, and we handle the rest.' },
+              { n: '3', title: 'Review & Grow', desc: 'PinSpark generates your monthly calendar. You just hit approve, and we handle the rest.' },
             ].map((s, i) => (
               <div key={i} className="step-row">
                 <div className="step-number-large">{s.n}</div>
@@ -380,7 +380,7 @@ export default function Home() {
               <h3 className="pricing-name">Starter</h3>
               <div className="pricing-price">$0<span>/mo</span></div>
               <div className="pricing-note" />
-              <p className="pricing-desc">Perfect for trying out LocalBoost for a single location.</p>
+              <p className="pricing-desc">Perfect for trying out PinSpark for a single location.</p>
               <a href="/dashboard" className="btn btn-outline" style={{ width: '100%', marginBottom: '32px' }}>Start Free</a>
               <ul className="pricing-features">
                 <li className="pricing-feature"><CheckIcon size={20} stroke="var(--sage)" strokeWidth={2.5} /> 1 Business Profile</li>
@@ -414,7 +414,7 @@ export default function Home() {
         <div className="cta-card">
           <h2 className="cta-title">Ready to automate your marketing?</h2>
           <p className="cta-subtitle">
-            Join thousands of local business owners saving 10+ hours a week with LocalBoost AI.
+            Join thousands of local business owners saving 10+ hours a week with PinSpark.
           </p>
           <a href="/dashboard" className="btn btn-outline btn-lg" style={{ color: '#0F172A', border: 'none', padding: '16px 32px', fontSize: '18px' }}>
             Start your free trial today
@@ -449,7 +449,7 @@ export default function Home() {
             <div className="footer-col">
               <h4>Company</h4>
               <ul>
-                <li><a href="mailto:hello@localboost.app">Contact</a></li>
+                <li><a href="mailto:hello@pinspark.app">Contact</a></li>
                 <li><a href="/dashboard">Dashboard</a></li>
               </ul>
             </div>
@@ -457,7 +457,7 @@ export default function Home() {
         </div>
 
         <div className="footer-bottom">
-          <div>© 2026 LocalBoost Inc. All rights reserved.</div>
+          <div>© 2026 PinSpark Inc. All rights reserved.</div>
           <div style={{ display: 'flex', gap: '16px' }}>
             <a href="#" style={{ color: 'var(--text-faint)', textDecoration: 'none' }}>Privacy Policy</a>
             <a href="#" style={{ color: 'var(--text-faint)', textDecoration: 'none' }}>Terms of Service</a>

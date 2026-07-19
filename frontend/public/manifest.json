@@ -1,6 +1,6 @@
 {
-  "name": "LocalBoost AI",
-  "short_name": "LocalBoost",
+  "name": "PinSpark",
+  "short_name": "PinSpark",
   "description": "AI-powered marketing assistant for local businesses — generate on-brand posts, plan calendar, publish to Instagram, Facebook, Google.",
   "start_url": "/",
   "display": "standalone",

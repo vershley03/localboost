@@ -6,7 +6,7 @@
 
 ---
 
-**Project:** LocalBoost AI
+**Project:** PinSpark
 **Generated:** 2026-07-18 15:54:12
 **Category:** Smart Home/IoT Dashboard
 

@@ -25,8 +25,8 @@ export async function GET(request: Request) {
       <body>
         <div class="card">
           <h1>facebook</h1>
-          <h2>LocalBoost AI is requesting access</h2>
-          <p>LocalBoost AI would like to manage your Pages, publish as your Pages, and access your Instagram Business accounts.</p>
+          <h2>PinSpark is requesting access</h2>
+          <p>PinSpark would like to manage your Pages, publish as your Pages, and access your Instagram Business accounts.</p>
           <div>
             <a href="${redirect_uri}?code=mock_success_code_42&state=${encodeURIComponent(state || '')}" class="btn">Continue as Sarah</a>
             <a href="${redirect_uri}?error=access_denied" class="btn btn-cancel">Cancel</a>
