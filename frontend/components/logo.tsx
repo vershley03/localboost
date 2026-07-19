@@ -135,7 +135,7 @@ export function PinSparkLogo({ size = 32, showText = true, iconSize }: { size?: 
       </span>
       {showText && (
         <span style={{ fontSize: iSize * 0.56, fontWeight: 800, letterSpacing: "-0.5px", color: "#0F172A", fontFamily: "var(--font-jakarta), Plus Jakarta Sans, sans-serif", display: "inline-flex" }}>
-          Pin<span style={{ backgroundImage: "linear-gradient(135deg,#0284C7 0%,#8B5CF6 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Spark</span>
+          Pin<span style={{ backgroundImage: "linear-gradient(135deg,#0284C7 0%,#8B5CF6 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", color: "transparent" }}>Spark</span>
         </span>
       )}
     </span>
