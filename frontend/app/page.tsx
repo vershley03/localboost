@@ -5,8 +5,8 @@ import {
   CheckIcon,
   MenuIcon,
   XIcon,
-  ZapIcon,
 } from "@/components/icons";
+import { LocalBoostLogo } from "@/components/logo";
 
 const NAV_LINKS = [
   { href: "#features", label: "Features" },
@@ -15,16 +15,7 @@ const NAV_LINKS = [
 ];
 
 function LogoMark() {
-  return (
-    <>
-      <div className="navbar-logo-icon">
-        <ZapIcon size={20} stroke="#FFF" fill="#FFF" />
-      </div>
-      <span className="navbar-logo-text">
-        Local<span>Boost</span>
-      </span>
-    </>
-  );
+  return <LocalBoostLogo size={36} />;
 }
 
 export default function Home() {

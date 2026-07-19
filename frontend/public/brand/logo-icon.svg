@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="g" x1="8%" y1="8%" x2="92%" y2="92%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="52%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+  <!-- Background rounded square -->
+  <rect width="1024" height="1024" rx="240" fill="url(#g)"/>
+
+  <!-- Location pin: thick outline with hollow interior (evenodd) -->
+  <!-- Outer pin 230-792, inner hole 365-715 -->
+  <path fill-rule="evenodd" fill="white" d="
+    M 512 215
+    C 320 215 205 335 205 465
+    C 205 670 512 870 512 870
+    C 512 870 819 670 819 465
+    C 819 335 704 215 512 215
+    Z
+    M 512 355
+    C 610 355 690 432 690 508
+    C 690 610 512 730 512 730
+    C 512 730 334 610 334 508
+    C 334 432 414 355 512 355
+    Z
+  "/>
+
+  <!-- Trend arrow shaft (white thick line with zigzag) -->
+  <path d="M 340 545 L 430 455 L 485 510 L 645 345"
+        fill="none" stroke="white" stroke-width="68"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Arrow head: pointing NE -->
+  <path d="M 565 302 L 705 292 L 695 435 Z" fill="white" stroke="white" stroke-width="18" stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- AI Sparkle -->
+  <path fill="white" d="M 830 115 C 830 115 840 170 890 180 C 840 190 830 245 830 245 C 830 245 820 190 770 180 C 820 170 830 115 830 115 Z
+                         M 830 115
+                         Q 835 145 860 165
+                         Q 835 185 830 215
+                         Q 825 185 800 165
+                         Q 825 145 830 115
+  "/>
+  <!-- cleaner 4-point star -->
+  <g transform="translate(830,180)">
+    <path fill="white" d="M 0 -105 L 14 -14 L 105 0 L 14 14 L 0 105 L -14 14 L -105 0 L -14 -14 Z"/>
+  </g>
+</svg>

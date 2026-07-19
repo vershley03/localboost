@@ -7,8 +7,8 @@ import {
   HomeIcon,
   PlugIcon,
   SparklesIcon,
-  ZapIcon,
 } from "@/components/icons";
+import { LocalBoostLogo } from "@/components/logo";
 
 export type TabId = "overview" | "creator" | "calendar" | "brand" | "integrations";
 
@@ -21,34 +21,7 @@ export const TABS: { id: TabId; label: string; icon: typeof HomeIcon }[] = [
 ];
 
 export function Logo({ iconSize = 32 }: { iconSize?: number }) {
-  return (
-    <>
-      <div
-        style={{
-          width: iconSize,
-          height: iconSize,
-          background: "linear-gradient(135deg, var(--accent) 0%, #38BDF8 100%)",
-          borderRadius: 8,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-        }}
-      >
-        <ZapIcon size={iconSize * 0.55} stroke="#FFF" fill="#FFF" />
-      </div>
-      <span
-        style={{
-          fontSize: 18,
-          fontWeight: 800,
-          color: "var(--text-primary)",
-          letterSpacing: "-0.5px",
-        }}
-      >
-        Local<span style={{ color: "var(--accent)" }}>Boost</span>
-      </span>
-    </>
-  );
+  return <LocalBoostLogo size={iconSize} />;
 }
 
 function NavItems({ active, onSelect }: { active: TabId; onSelect: (t: TabId) => void }) {

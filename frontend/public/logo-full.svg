@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="160" viewBox="0 0 720 160">
+  <defs>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="55%" stop-color="#0EA5E9"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="tg2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(0,8)">
+    <rect width="128" height="128" rx="30" fill="url(#lg2)"/>
+    <path fill-rule="evenodd" fill="white" d="M64 26.9C40 26.9 25.6 35.6 25.6 55.1C25.6 78.7 64 106 64 106C64 106 102.4 78.7 102.4 55.1C102.4 35.6 88 26.9 64 26.9ZM64 42.1C76 42.1 85 49.7 85 59.8C85 71.5 64 88 64 88C64 88 42 71.5 42 59.8C42 49.7 52 42.1 64 42.1Z"/>
+    <path d="M42.5 67.5L53.5 56.5L60 63L81 41" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M70 37.5L88 36.5L87 55L70 37.5Z" fill="white"/>
+    <g transform="translate(104,22)">
+      <path fill="white" d="M0 -13L1.8 -1.8L13 0L1.8 1.8L0 13L-1.8 1.8L-13 0L-1.8 -1.8Z"/>
+    </g>
+  </g>
+  <g transform="translate(160,0)" font-family="Plus Jakarta Sans, Inter, sans-serif">
+    <text x="0" y="98" font-size="64" font-weight="800" letter-spacing="-1.5" fill="#0F172A">Local<tspan fill="url(#tg2)">Boost</tspan></text>
+  </g>
+</svg>
