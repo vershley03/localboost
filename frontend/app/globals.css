@@ -145,12 +145,12 @@ body {
 .navbar-logo-icon {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, var(--accent) 0%, #38BDF8 100%);
+  background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 55%, #8B5CF6 100%);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28), 0 2px 8px rgba(139,92,246,0.18);
 }
 
 .navbar-logo-text {
@@ -158,10 +158,38 @@ body {
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.5px;
+  display: inline-flex;
+  align-items: baseline;
 }
 
 .navbar-logo-text span {
-  color: var(--accent);
+  background: linear-gradient(135deg, #0284C7 0%, #8B5CF6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* New logo system */
+.logo-mark {
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 55%, #8B5CF6 100%);
+  box-shadow: 0 4px 12px rgba(2,132,199,0.28);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-word {
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+.logo-word-boost {
+  background: linear-gradient(135deg, #0284C7, #8B5CF6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .navbar-links {
