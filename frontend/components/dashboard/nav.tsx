@@ -67,25 +67,16 @@ export function Sidebar({
       <Link href="/" className="app-sidebar-logo">
         <Logo />
       </Link>
-      
-      <OrgSwitcher 
-        orgs={orgs}
-        activeOrgId={activeOrgId}
-        onSwitch={onSwitchOrg}
-        onCreate={onCreateOrg}
-      />
-
       <nav className="app-nav" aria-label="Dashboard">
         <NavItems active={active} onSelect={onSelect} />
       </nav>
-      <div className="app-sidebar-footer">
-        <div className="app-user">
-          <div className="app-avatar">S</div>
-          <div>
-            <div className="app-user-name">Sarah Jenkins</div>
-            <div className="app-user-meta">{businessName}</div>
-          </div>
-        </div>
+      <div className="app-sidebar-footer" style={{ padding: '16px 0 0 0', borderTop: '1px solid var(--border)', marginTop: 'auto' }}>
+        <OrgSwitcher 
+          orgs={orgs}
+          activeOrgId={activeOrgId}
+          onSwitch={onSwitchOrg}
+          onCreate={onCreateOrg}
+        />
       </div>
     </aside>
   );

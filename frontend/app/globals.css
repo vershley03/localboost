@@ -2070,7 +2070,7 @@ body {
 /* ===== ORG SWITCHER ===== */
 .org-switcher-wrapper {
   position: relative;
-  margin: 0 0 24px 0;
+  margin: 0;
 }
 
 .org-switcher-trigger {
@@ -2149,7 +2149,7 @@ body {
 
 .org-switcher-menu {
   position: absolute;
-  top: calc(100% + 4px);
+  bottom: calc(100% + 4px);
   left: 0;
   width: 100%;
   background: #FFFFFF;
@@ -2158,8 +2158,8 @@ body {
   box-shadow: var(--shadow-lg);
   z-index: 50;
   padding: 8px;
-  animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  transform-origin: top;
+  animation: slideUpMenu 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: bottom;
 }
 
 .org-menu-label {
@@ -2262,4 +2262,18 @@ body {
 .org-modal-close:hover {
   background: var(--bg-secondary);
   color: var(--text-primary);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #0284C7 0%, #8B5CF6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+@keyframes slideUpMenu {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
