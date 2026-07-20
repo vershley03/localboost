@@ -91,7 +91,7 @@ export default function Home() {
 
         <div className="navbar-cta">
           <a href="/dashboard" className="btn btn-ghost">Sign in</a>
-          <a href="/dashboard" className="btn btn-primary">Start free</a>
+          <a href="/pricing" className="btn btn-primary">Start free</a>
           <button
             className="mobile-menu-btn"
             onClick={() => setMenuOpen((v) => !v)}
@@ -440,7 +440,7 @@ export default function Home() {
               <div className="pricing-price">${isAnnual ? '24' : '29'}<span>/mo</span></div>
               <div className="pricing-note">{isAnnual ? 'Billed $288 annually' : 'Billed monthly'}</div>
               <p className="pricing-desc">Everything you need to run your marketing on autopilot.</p>
-              <a href="/dashboard" className="btn btn-accent" style={{ width: '100%', marginBottom: '32px' }}>Start 14-Day Trial</a>
+              <a href="/pricing" className="btn btn-accent" style={{ width: '100%', marginBottom: '32px' }}>Start 14-Day Trial</a>
               <ul className="pricing-features">
                 {['Up to 3 Profiles', 'Unlimited AI Content', 'Full Auto-Scheduling', 'Advanced Analytics'].map((feature) => (
                   <li key={feature} className="pricing-feature">
