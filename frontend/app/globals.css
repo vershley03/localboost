@@ -4010,110 +4010,88 @@ body {
 
 /* ===== CLERK PRICING TABLE STYLING ===== */
 .pricing-clerk-shell {
-  background: var(--bg-surface);
-  border-radius: 24px;
-  overflow: hidden;
   width: 100%;
 }
 
-/* Clerk PricingTable Container */
-.pricing-clerk-shell [role="main"] {
-  padding: 0 !important;
+/* Main pricing container */
+.pricing-clerk-shell .cl-pricingTable {
+  width: 100% !important;
 }
 
-/* Clerk Pricing Cards */
-.pricing-clerk-shell .cl-pricing-card {
+/* Pricing cards container */
+.pricing-clerk-shell [class*="pricingCard"] {
   background: var(--bg-surface) !important;
   border: 1px solid var(--border) !important;
   border-radius: 20px !important;
-  padding: 32px !important;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  box-shadow: var(--shadow-sm) !important;
-  position: relative;
   overflow: hidden;
 }
 
-.pricing-clerk-shell .cl-pricing-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at top left, rgba(2, 132, 199, 0.08), transparent 60%);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.pricing-clerk-shell .cl-pricing-card:hover {
-  transform: translateY(-4px) !important;
+.pricing-clerk-shell [class*="pricingCard"]:hover {
   box-shadow: var(--shadow-lg) !important;
   border-color: var(--border-hover) !important;
+  transform: translateY(-4px) !important;
 }
 
-.pricing-clerk-shell .cl-pricing-card:hover::before {
-  opacity: 1;
-}
-
-/* Highlighted card (featured plan) */
-.pricing-clerk-shell .cl-pricing-card.cl-popular {
+/* Popular/Featured card */
+.pricing-clerk-shell [class*="pricingCard"][class*="popular"],
+.pricing-clerk-shell [class*="pricingCard"][data-popular="true"] {
   border: 2px solid var(--accent) !important;
   box-shadow: var(--shadow-xl), 0 0 32px rgba(2, 132, 199, 0.15) !important;
   transform: scale(1.02) !important;
 }
 
-.pricing-clerk-shell .cl-pricing-card.cl-popular:hover {
+.pricing-clerk-shell [class*="pricingCard"][class*="popular"]:hover,
+.pricing-clerk-shell [class*="pricingCard"][data-popular="true"]:hover {
   transform: scale(1.02) translateY(-4px) !important;
 }
 
-/* Card Header */
-.pricing-clerk-shell .cl-pricing-card-header {
-  margin-bottom: 24px !important;
-}
-
-.pricing-clerk-shell .cl-pricing-card-name,
-.pricing-clerk-shell .cl-pricing-card-title {
+/* Card titles */
+.pricing-clerk-shell [class*="pricingCardHeader"],
+.pricing-clerk-shell h3 {
+  color: var(--text-primary) !important;
+  font-weight: 800 !important;
   font-size: 20px !important;
-  font-weight: 800 !important;
-  color: var(--text-primary) !important;
-  letter-spacing: -0.5px !important;
 }
 
-.pricing-clerk-shell .cl-pricing-card-description {
-  font-size: 14px !important;
+/* Card descriptions */
+.pricing-clerk-shell [class*="pricingCardDescription"],
+.pricing-clerk-shell p {
   color: var(--text-muted) !important;
+  font-size: 14px !important;
   line-height: 1.5 !important;
-  margin-top: 8px !important;
 }
 
-/* Price */
-.pricing-clerk-shell .cl-pricing-card-price {
-  margin: 28px 0 !important;
-}
-
-.pricing-clerk-shell .cl-pricing-card-price-amount,
-.pricing-clerk-shell .cl-pricing-price-amount {
-  font-size: 44px !important;
-  font-weight: 800 !important;
+/* Price amount */
+.pricing-clerk-shell [class*="priceAmount"],
+.pricing-clerk-shell [class*="price"] [class*="amount"],
+.pricing-clerk-shell .amount,
+.pricing-clerk-shell [class*="Price"] {
   color: var(--text-primary) !important;
+  font-weight: 800 !important;
+  font-size: 44px !important;
   letter-spacing: -1px !important;
 }
 
-.pricing-clerk-shell .cl-pricing-card-price-currency {
-  font-size: 20px !important;
-  font-weight: 800 !important;
-}
-
-.pricing-clerk-shell .cl-pricing-card-price-period {
-  font-size: 15px !important;
+/* Price period/billing */
+.pricing-clerk-shell [class*="pricePeriod"],
+.pricing-clerk-shell .period,
+.pricing-clerk-shell [class*="billingPeriod"] {
   color: var(--text-muted) !important;
+  font-size: 14px !important;
   font-weight: 500 !important;
 }
 
-/* Buttons */
+/* Toggle/switch for billing */
+.pricing-clerk-shell input[type="checkbox"],
+.pricing-clerk-shell [class*="toggle"] {
+  accent-color: var(--accent) !important;
+}
+
+/* CTA Buttons - Primary Style */
 .pricing-clerk-shell button,
-.pricing-clerk-shell .cl-button {
+.pricing-clerk-shell [class*="button"],
+.pricing-clerk-shell [role="button"] {
   background: var(--accent) !important;
   color: white !important;
   border: none !important;
@@ -4128,59 +4106,54 @@ body {
 }
 
 .pricing-clerk-shell button:hover,
-.pricing-clerk-shell .cl-button:hover {
+.pricing-clerk-shell [class*="button"]:hover,
+.pricing-clerk-shell [role="button"]:hover {
   background: var(--accent-hover) !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 8px 16px rgba(2, 132, 199, 0.3) !important;
 }
 
 .pricing-clerk-shell button:active,
-.pricing-clerk-shell .cl-button:active {
+.pricing-clerk-shell [class*="button"]:active {
   transform: translateY(0) !important;
 }
 
-/* Features List */
-.pricing-clerk-shell .cl-pricing-card-features,
-.pricing-clerk-shell .cl-feature-list {
+/* Features list */
+.pricing-clerk-shell ul,
+.pricing-clerk-shell [class*="featureList"],
+.pricing-clerk-shell [class*="features"] {
+  list-style: none !important;
   display: flex;
   flex-direction: column;
   gap: 14px !important;
 }
 
-.pricing-clerk-shell .cl-pricing-card-feature,
-.pricing-clerk-shell .cl-feature-list li {
+.pricing-clerk-shell li,
+.pricing-clerk-shell [class*="feature"] {
   display: flex;
   align-items: flex-start;
   gap: 12px !important;
   font-size: 14px !important;
   color: var(--text-muted) !important;
   line-height: 1.5 !important;
-  list-style: none !important;
 }
 
-.pricing-clerk-shell .cl-pricing-card-feature svg,
-.pricing-clerk-shell .cl-feature-list li svg {
-  flex-shrink: 0;
+/* Checkmarks/Icons */
+.pricing-clerk-shell svg[class*="check"],
+.pricing-clerk-shell [class*="icon"] svg,
+.pricing-clerk-shell li::before {
+  color: var(--sage) !important;
   width: 20px !important;
   height: 20px !important;
-  color: var(--sage) !important;
-  margin-top: 2px;
+  stroke: var(--sage) !important;
   stroke-width: 2.5 !important;
+  flex-shrink: 0;
 }
 
-/* Container Layout */
-.pricing-clerk-shell .cl-pricing-cards-container {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
-  gap: 28px !important;
-  width: 100% !important;
-  padding: 0 !important;
-}
-
-/* Popular badge */
-.pricing-clerk-shell .cl-badge,
-.pricing-clerk-shell .cl-popular-badge {
-  background: var(--accent-glow) !important;
+/* Badge/label */
+.pricing-clerk-shell [class*="badge"],
+.pricing-clerk-shell [class*="label"] {
+  background: var(--accent-subtle) !important;
   color: var(--accent) !important;
   padding: 6px 12px !important;
   border-radius: 100px !important;
@@ -4188,28 +4161,45 @@ body {
   font-weight: 700 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
-  margin-bottom: 12px !important;
+}
+
+/* Grid/Container */
+.pricing-clerk-shell [class*="container"],
+.pricing-clerk-shell [class*="grid"] {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+  gap: 28px !important;
+  width: 100% !important;
+}
+
+/* Typography - ensure font consistency */
+.pricing-clerk-shell {
+  font-family: var(--font) !important;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .pricing-clerk-shell .cl-pricing-cards-container {
+  .pricing-clerk-shell [class*="container"],
+  .pricing-clerk-shell [class*="grid"] {
     grid-template-columns: 1fr !important;
   }
 
-  .pricing-clerk-shell .cl-pricing-card.cl-popular {
+  .pricing-clerk-shell [class*="pricingCard"][class*="popular"],
+  .pricing-clerk-shell [class*="pricingCard"][data-popular="true"] {
     transform: scale(1) !important;
   }
 
-  .pricing-clerk-shell .cl-pricing-card.cl-popular:hover {
+  .pricing-clerk-shell [class*="pricingCard"][class*="popular"]:hover,
+  .pricing-clerk-shell [class*="pricingCard"][data-popular="true"]:hover {
     transform: translateY(-4px) !important;
   }
 
-  .pricing-clerk-shell .cl-pricing-card {
+  .pricing-clerk-shell [class*="pricingCard"] {
     padding: 24px !important;
   }
 
-  .pricing-clerk-shell .cl-pricing-card-price-amount {
+  .pricing-clerk-shell [class*="priceAmount"],
+  .pricing-clerk-shell [class*="Price"] {
     font-size: 36px !important;
   }
 }
