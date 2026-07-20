@@ -45,7 +45,26 @@ function DashboardInner() {
     x: false,
   });
   const [generationCount, setGenerationCount] = useState(0);
+  const [userName, setUserName] = useState<string>("Sarah");
   const toast = useToast();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = window.localStorage.getItem("lb:username");
+      if (stored) {
+        try {
+          setUserName(JSON.parse(stored));
+        } catch {
+          setUserName(stored);
+        }
+      }
+    }
+  }, []);
+
+  const updateUserName = (name: string) => {
+    setUserName(name);
+    window.localStorage.setItem("lb:username", JSON.stringify(name));
+  };
 
   const loadOrgData = (orgId: string) => {
     setPosts(getPosts(orgId));
@@ -130,13 +149,33 @@ function DashboardInner() {
         onCreateOrg={() => setIsOrgModalOpen(true)}
       />
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-        <MobileNav active={activeTab} onSelect={setActiveTab} posts={posts} />
-        <main className="app-main" style={{ position: "relative" }}>
-          {ready && (
-            <div style={{ position: "absolute", top: 24, right: 32, zIndex: 100 }}>
-              <NotificationBell posts={posts} />
+        {ready && (
+          <header className="app-header-desktop">
+            <div className="app-header-left">
+              <span className="org-badge">{brand.businessName}</span>
             </div>
-          )}
+            <div className="app-header-right">
+              <NotificationBell posts={posts} />
+              <div 
+                className="user-profile-widget" 
+                onClick={() => {
+                  const name = prompt("Change profile name:", userName);
+                  if (name !== null && name.trim() !== "") {
+                    updateUserName(name.trim());
+                  }
+                }}
+                title="Click to edit profile name"
+              >
+                <div className="app-avatar" style={{ width: 32, height: 32, fontSize: 13 }}>
+                  {userName.charAt(0).toUpperCase()}
+                </div>
+                <span className="user-name-text">{userName}</span>
+              </div>
+            </div>
+          </header>
+        )}
+        <MobileNav active={activeTab} onSelect={setActiveTab} posts={posts} userName={userName} />
+        <main className="app-main">
           {ready ? (
             <div className="app-main-inner" key={`${activeOrgId}-${activeTab}`}>
               {activeTab === "overview" && (
@@ -145,6 +184,7 @@ function DashboardInner() {
                   generationCount={generationCount}
                   businessName={brand.businessName}
                   onNavigate={setActiveTab}
+                  userName={userName}
                 />
               )}
               {activeTab === "creator" && (

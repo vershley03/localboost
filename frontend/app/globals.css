@@ -3017,3 +3017,65 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== DESKTOP HEADER ===== */
+.app-header-desktop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 48px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.org-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-subtle);
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.user-profile-widget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 100px;
+  transition: background 0.2s ease;
+}
+
+.user-profile-widget:hover {
+  background: var(--bg-base);
+}
+
+.user-name-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+@media (max-width: 900px) {
+  .app-header-desktop {
+    display: none;
+  }
+}

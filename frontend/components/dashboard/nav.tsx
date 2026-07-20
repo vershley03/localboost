@@ -97,10 +97,12 @@ export function MobileNav({
   active,
   onSelect,
   posts,
+  userName = "Sarah",
 }: {
   active: TabId;
   onSelect: (t: TabId) => void;
   posts: ScheduledPost[];
+  userName?: string;
 }) {
   return (
     <>
@@ -110,8 +112,8 @@ export function MobileNav({
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <NotificationBell posts={posts} />
-          <div className="app-avatar" style={{ width: 34, height: 34, fontSize: 13 }}>
-            S
+          <div className="app-avatar" style={{ width: 34, height: 34, fontSize: 13 }} title={userName}>
+            {userName.charAt(0).toUpperCase()}
           </div>
         </div>
       </div>
