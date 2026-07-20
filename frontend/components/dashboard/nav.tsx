@@ -176,13 +176,6 @@ export function MobileNav({
               onCreate={onCreateOrg}
             />
           </div>
-          <div className="app-mobile-nav-theme-row">
-            <div>
-              <div className="app-mobile-nav-section-label">Appearance</div>
-              <div className="app-mobile-nav-theme-copy">Switch light and dark mode</div>
-            </div>
-            <ThemeToggle />
-          </div>
         </div>
         <NavItems active={active} onSelect={handleSelect} />
       </nav>
