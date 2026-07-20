@@ -7,16 +7,18 @@ import {
   HomeIcon,
   PlugIcon,
   SparklesIcon,
+  StarIcon,
 } from "@/components/icons";
 import { PinSparkLogo } from "@/components/logo";
 
-export type TabId = "overview" | "creator" | "calendar" | "brand" | "integrations";
+export type TabId = "overview" | "creator" | "calendar" | "brand" | "reputation" | "integrations";
 
 export const TABS: { id: TabId; label: string; icon: typeof HomeIcon }[] = [
   { id: "overview", label: "Overview", icon: HomeIcon },
   { id: "creator", label: "Magic Creator", icon: SparklesIcon },
   { id: "calendar", label: "Calendar", icon: CalendarIcon },
   { id: "brand", label: "Brand DNA", icon: FingerprintIcon },
+  { id: "reputation", label: "Reputation", icon: StarIcon },
   { id: "integrations", label: "Integrations", icon: PlugIcon },
 ];
 

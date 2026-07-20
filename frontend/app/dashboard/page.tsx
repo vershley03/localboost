@@ -7,6 +7,7 @@ import { Overview } from "@/components/dashboard/overview";
 import { MagicCreator } from "@/components/dashboard/magic-creator";
 import { CalendarView } from "@/components/dashboard/calendar-view";
 import { BrandProfileView } from "@/components/dashboard/brand-profile";
+import { Reputation } from "@/components/dashboard/reputation";
 import { Integrations } from "@/components/dashboard/integrations";
 import { OrgModal } from "@/components/dashboard/org-switcher";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
@@ -163,6 +164,9 @@ function DashboardInner() {
               )}
               {activeTab === "brand" && (
                 <BrandProfileView brand={brand} onSave={updateBrand} />
+              )}
+              {activeTab === "reputation" && (
+                <Reputation brand={brand} orgId={activeOrgId} />
               )}
               {activeTab === "integrations" && (
                 <Integrations connections={connections} onChange={updateConnections} />
