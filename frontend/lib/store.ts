@@ -4,7 +4,7 @@
 // Multi-org: data is namespaced by org ID (e.g. "lb:org-abc:posts").
 // A one-time migration moves legacy flat keys into the first org.
 
-export type Platform = "instagram" | "facebook" | "google";
+export type Platform = "instagram" | "facebook" | "google" | "x";
 
 export type PostStatus = "draft" | "scheduled" | "published";
 
@@ -92,6 +92,7 @@ const DEFAULT_CONNECTIONS: Connections = {
   instagram: false,
   facebook: false,
   google: false,
+  x: false,
 };
 
 // ─── Org management ──────────────────────────────────────────────────────────

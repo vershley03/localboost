@@ -1,6 +1,6 @@
 "use client";
 
-import { FacebookIcon, GoogleIcon, InstagramIcon } from "@/components/icons";
+import { FacebookIcon, GoogleIcon, InstagramIcon, TwitterXIcon } from "@/components/icons";
 import { useToast } from "@/components/toast";
 import type { Connections, Platform } from "@/lib/store";
 
@@ -24,6 +24,13 @@ const PROVIDERS: {
     connectedAs: "The Daily Grind",
     icon: FacebookIcon,
     oauthUrl: "/api/integrations/facebook/auth?provider=facebook",
+  },
+  {
+    id: "x",
+    name: "X (Twitter)",
+    connectedAs: "@thedailygrind",
+    icon: TwitterXIcon,
+    oauthUrl: "/api/integrations/facebook/auth?provider=x", // reusing mock for now
   },
   {
     id: "google",

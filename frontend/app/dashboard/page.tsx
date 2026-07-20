@@ -9,6 +9,7 @@ import { CalendarView } from "@/components/dashboard/calendar-view";
 import { BrandProfileView } from "@/components/dashboard/brand-profile";
 import { Integrations } from "@/components/dashboard/integrations";
 import { OrgModal } from "@/components/dashboard/org-switcher";
+import { NotificationBell } from "@/components/dashboard/notification-bell";
 import {
   DEFAULT_BRAND,
   getBrand,
@@ -40,6 +41,7 @@ function DashboardInner() {
     instagram: false,
     facebook: false,
     google: false,
+    x: false,
   });
   const [generationCount, setGenerationCount] = useState(0);
   const toast = useToast();
@@ -127,8 +129,13 @@ function DashboardInner() {
         onCreateOrg={() => setIsOrgModalOpen(true)}
       />
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-        <MobileNav active={activeTab} onSelect={setActiveTab} />
-        <main className="app-main">
+        <MobileNav active={activeTab} onSelect={setActiveTab} posts={posts} />
+        <main className="app-main" style={{ position: "relative" }}>
+          {ready && (
+            <div style={{ position: "absolute", top: 24, right: 32, zIndex: 100 }}>
+              <NotificationBell posts={posts} />
+            </div>
+          )}
           {ready ? (
             <div className="app-main-inner" key={`${activeOrgId}-${activeTab}`}>
               {activeTab === "overview" && (

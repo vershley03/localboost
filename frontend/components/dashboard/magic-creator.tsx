@@ -11,6 +11,7 @@ import {
   SendIcon,
   SparklesIcon,
   XIcon,
+  TwitterXIcon,
   RefreshIcon
 } from "@/components/icons";
 import { useToast } from "@/components/toast";
@@ -26,6 +27,7 @@ import {
 const PLATFORMS: { id: Platform; label: string; icon: typeof InstagramIcon }[] = [
   { id: "instagram", label: "Instagram", icon: InstagramIcon },
   { id: "facebook", label: "Facebook", icon: FacebookIcon },
+  { id: "x", label: "X", icon: TwitterXIcon },
   { id: "google", label: "Google", icon: GoogleIcon },
 ];
 
@@ -89,6 +91,10 @@ export function MagicCreator({
   const [ideas, setIdeas] = useState<string[]>([]);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [image, setImage] = useState<string | null>(null);
+  
+  // Custom Tone & Audience Overrides
+  const [tone, setTone] = useState(brand.tone);
+  const [audience, setAudience] = useState(brand.audience);
   
   // Scheduling Modal State
   const [scheduleVariant, setScheduleVariant] = useState<Variant | null>(null);
@@ -164,7 +170,7 @@ export function MagicCreator({
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, platforms: selected, brand, image: image ?? undefined }),
+        body: JSON.stringify({ prompt, platforms: selected, brand, customTone: tone, customAudience: audience, image: image ?? undefined }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -196,7 +202,7 @@ export function MagicCreator({
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, platforms: [platform], brand }),
+        body: JSON.stringify({ prompt, platforms: [platform], brand, customTone: tone, customAudience: audience }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -248,6 +254,7 @@ export function MagicCreator({
     // Mock best times per platform
     if (platform === 'instagram') setScheduleTime("18:00");
     else if (platform === 'facebook') setScheduleTime("12:00");
+    else if (platform === 'x') setScheduleTime("14:00");
     else setScheduleTime("09:00");
     toast("Applied suggested best time");
   };
@@ -282,53 +289,99 @@ export function MagicCreator({
           </div>
         )}
 
-        <div className="composer-footer">
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-            <input
-              ref={fileInput}
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={(e) => {
-                pickImage(e.target.files?.[0]);
-                e.target.value = "";
-              }}
-            />
-            <button className={`chip ${image ? "selected" : ""}`} onClick={() => fileInput.current?.click()}>
-              <ImageIcon size={15} /> Upload Photo
-            </button>
-            <button className="chip" onClick={handleGenerateImage} disabled={generatingImage}>
-              {generatingImage ? <LoaderIcon size={15} className="spin" /> : <SparklesIcon size={15} />} 
-              Generate Image
-            </button>
-            
-            <div style={{ width: '1px', height: '24px', background: 'var(--border)', margin: '0 8px' }}></div>
+        <div className="composer-toolbar" style={{ padding: "16px 20px", borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: "20px" }}>
+          
+          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-muted)", marginRight: 8 }}>Platforms:</span>
+              {PLATFORMS.map(({ id, label, icon: PlatformIcon }) => (
+                <button
+                  key={id}
+                  className={`chip ${selected.includes(id) ? "selected" : ""}`}
+                  onClick={() => togglePlatform(id)}
+                >
+                  <PlatformIcon size={15} />
+                  {label}
+                </button>
+              ))}
+            </div>
 
-            {PLATFORMS.map(({ id, label, icon: PlatformIcon }) => (
-              <button
-                key={id}
-                className={`chip ${selected.includes(id) ? "selected" : ""}`}
-                onClick={() => togglePlatform(id)}
-              >
-                <PlatformIcon size={15} />
-                {label}
+            <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-muted)", marginRight: 8 }}>Media:</span>
+              <input
+                ref={fileInput}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  pickImage(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
+              <button className={`chip ${image ? "selected" : ""}`} onClick={() => fileInput.current?.click()}>
+                <ImageIcon size={15} /> Upload
               </button>
-            ))}
+              <button className="chip" onClick={handleGenerateImage} disabled={generatingImage}>
+                {generatingImage ? <LoaderIcon size={15} className="spin" /> : <SparklesIcon size={15} />} 
+                AI Image
+              </button>
+            </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <button className="btn btn-accent" onClick={generate} disabled={prompt.trim().length < 5 || generating}>
-              {generating ? <LoaderIcon size={16} className="spin" /> : <SparklesIcon size={16} />}
-              {generating ? "Drafting..." : "Generate Posts"}
-            </button>
+
+          {/* AI Steering Controls */}
+          <div style={{ background: "var(--bg-base)", padding: "16px", borderRadius: "12px", border: "1px solid var(--border)", display: "grid", gridTemplateColumns: "1fr 2fr", gap: "16px" }}>
+             <div>
+                <label style={{ display: "block", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700, color: "var(--text-faint)", marginBottom: 8 }}>
+                  Brand Tone
+                </label>
+                <select className="form-select" style={{ width: "100%", fontSize: 14 }} value={tone} onChange={e => setTone(e.target.value)}>
+                  <option value="Professional">Professional</option>
+                  <option value="Casual & Friendly">Casual & Friendly</option>
+                  <option value="Witty & Humorous">Witty & Humorous</option>
+                  <option value="Urgent & Exciting">Urgent & Exciting</option>
+                  <option value={brand.tone}>Brand Default ({brand.tone})</option>
+                </select>
+             </div>
+             <div>
+                <label style={{ display: "block", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700, color: "var(--text-faint)", marginBottom: 8 }}>
+                  Target Audience
+                </label>
+                <textarea 
+                  className="form-input" 
+                  style={{ width: "100%", fontSize: 14, resize: "none", height: "42px", paddingTop: "10px" }} 
+                  value={audience} 
+                  onChange={e => setAudience(e.target.value)} 
+                  placeholder="e.g. Local professionals, college students, and coffee enthusiasts in the downtown area" 
+                />
+             </div>
           </div>
+        </div>
+
+        <div style={{ padding: "16px 20px", background: "var(--bg-surface)", borderTop: "1px solid var(--border)", borderBottomLeftRadius: 16, borderBottomRightRadius: 16 }}>
+          <button 
+            className="btn btn-accent btn-lg" 
+            style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }} 
+            onClick={generate} 
+            disabled={generating || prompt.trim().length < 5 || selected.length === 0}
+          >
+            {generating ? <LoaderIcon size={18} className="spin" /> : <SparklesIcon size={18} />}
+            Generate Drafts
+          </button>
         </div>
       </div>
 
       {/* Weekly Content Ideas State (If empty prompt) */}
       {!prompt && variants.length === 0 && (
-        <div style={{ marginTop: '32px', background: '#FFFFFF', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)', textAlign: 'center' }}>
-          <div style={{ width: '48px', height: '48px', background: 'var(--accent-subtle)', color: 'var(--accent)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <SparklesIcon size={24} />
+        <div style={{ marginTop: '32px', background: 'var(--bg-surface)', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)', textAlign: 'center' }}>
+          <div style={{ margin: '0 auto 24px', display: 'flex', justifyContent: 'center' }}>
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="40" fill="var(--bg-secondary)" />
+              <path d="M40 70 L 60 70 M 50 20 L 50 30 M 25 45 L 35 45 M 65 45 L 75 45 M 32 28 L 39 35 M 68 28 L 61 35" stroke="var(--accent)" strokeWidth="3" strokeLinecap="round" />
+              <path d="M40 70 C 40 60, 30 55, 30 45 C 30 30, 70 30, 70 45 C 70 55, 60 60, 60 70 Z" fill="#FFF" stroke="var(--violet)" strokeWidth="4" strokeLinejoin="round" />
+              <circle cx="50" cy="85" r="3" fill="var(--coral)" />
+              <circle cx="30" cy="20" r="4" fill="var(--accent)" />
+              <circle cx="75" cy="75" r="5" fill="var(--violet)" />
+            </svg>
           </div>
           <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>Writer's Block?</h3>
           <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Let AI generate a week of content ideas tailored perfectly for {brand.businessName}.</p>
@@ -343,7 +396,7 @@ export function MagicCreator({
               {ideas.map((idea, i) => (
                 <button 
                   key={i} 
-                  style={{ padding: '16px', background: '#F8FAFC', border: '1px solid var(--border)', borderRadius: '12px', textAlign: 'left', fontSize: '15px', color: 'var(--text-primary)', cursor: 'pointer', transition: 'all 0.2s' }}
+                  style={{ padding: '16px', background: 'var(--bg-base)', border: '1px solid var(--border)', borderRadius: '12px', textAlign: 'left', fontSize: '15px', color: 'var(--text-primary)', cursor: 'pointer', transition: 'all 0.2s' }}
                   onClick={() => setPrompt(idea)}
                   onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--accent)'}
                   onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
@@ -362,43 +415,80 @@ export function MagicCreator({
           const meta = PLATFORMS.find((p) => p.id === variant.platform)!;
           const PlatformIcon = meta.icon;
           return (
-            <article key={variant.id} className="result-card">
-              <div className="result-card-header">
-                <span className="chip chip-static">
-                  <span className={`content-row-platform platform-${variant.platform}`} style={{ width: 24, height: 24, borderRadius: 6 }}>
-                    <PlatformIcon size={13} />
-                  </span>
-                  {meta.label} draft
+            <article key={variant.id} className="result-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border)', borderRadius: '16px' }}>
+              {/* Mockup Header */}
+              <div style={{ display: 'flex', alignItems: 'center', padding: '16px', borderBottom: '1px solid var(--border)' }}>
+                <div className="org-avatar small" style={{ marginRight: '12px' }}>{brand.businessName.charAt(0)}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '14px', fontWeight: 700 }}>{brand.businessName}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-faint)' }}>Sponsored</div>
+                </div>
+                <span className={`content-row-platform platform-${variant.platform}`} style={{ width: 24, height: 24, borderRadius: 6 }}>
+                  <PlatformIcon size={13} />
                 </span>
               </div>
               
-              {/* INLINE EDITING: Textarea instead of static paragraph */}
-              <textarea 
-                className="result-caption" 
-                value={variant.caption}
-                onChange={(e) => updateVariantCaption(index, e.target.value)}
-                style={{ width: '100%', minHeight: '100px', border: '1px solid transparent', background: 'transparent', resize: 'none', padding: '8px', fontSize: '16px', lineHeight: '1.5', fontFamily: 'inherit', color: 'var(--text-primary)' }}
-                onFocus={(e) => e.currentTarget.style.border = '1px dashed var(--border)'}
-                onBlur={(e) => e.currentTarget.style.border = '1px solid transparent'}
-              />
+              {/* Mockup Image */}
+              {image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={image} alt="Post image" style={{ width: '100%', height: 'auto', display: 'block', maxHeight: '400px', objectFit: 'cover' }} />
+              )}
+              
+              {/* Mockup Actions Bar */}
+              <div style={{ display: 'flex', gap: '16px', padding: '12px 16px', color: 'var(--text-primary)' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              </div>
 
-              <div className="result-actions">
-                <button className="btn btn-outline btn-sm" onClick={() => regenerateVariant(index, variant.platform)}>
-                  <RefreshIcon size={14} />
-                  Regenerate
-                </button>
-                <button className="btn btn-outline btn-sm" onClick={() => copy(variant.caption)}>
-                  <CopyIcon size={14} />
-                  Copy
-                </button>
-                <button className="btn btn-accent btn-sm" onClick={() => {
-                  const tmrw = new Date(); tmrw.setDate(tmrw.getDate() + 1);
-                  setScheduleDate(toDateKey(tmrw));
-                  setScheduleVariant(variant);
-                }}>
-                  <SendIcon size={14} />
-                  Schedule...
-                </button>
+              {/* Caption Editor */}
+              <div style={{ padding: '0 16px 16px 16px' }}>
+                <textarea 
+                  className="result-caption" 
+                  value={variant.caption}
+                  onChange={(e) => updateVariantCaption(index, e.target.value)}
+                  style={{ width: '100%', minHeight: '100px', border: '1px dashed transparent', background: 'transparent', resize: 'vertical', padding: '8px', fontSize: '15px', lineHeight: '1.5', fontFamily: 'inherit', color: 'var(--text-primary)', borderRadius: '8px', transition: 'border 0.2s' }}
+                  onFocus={(e) => e.currentTarget.style.border = '1px dashed var(--border)'}
+                  onBlur={(e) => e.currentTarget.style.border = '1px dashed transparent'}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="result-actions" style={{ background: 'var(--bg-secondary)', padding: '12px 16px', borderTop: '1px solid var(--border)', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button className="btn btn-outline btn-sm" onClick={() => regenerateVariant(index, variant.platform)}>
+                    <RefreshIcon size={14} />
+                    Rewrite
+                  </button>
+                  <button className="btn btn-outline btn-sm" onClick={() => copy(variant.caption)}>
+                    <CopyIcon size={14} />
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button className="btn btn-outline btn-sm" onClick={() => {
+                    onSchedule({
+                      id: variant.id,
+                      date: new Date().toISOString().split('T')[0],
+                      platform: variant.platform,
+                      title: prompt.substring(0, 30) + '...',
+                      caption: variant.caption,
+                      status: "draft",
+                      imageUrl: image ?? undefined,
+                    });
+                    setVariants(v => v.filter(x => x.id !== variant.id));
+                    toast("Saved to Drafts");
+                  }}>
+                    Save Draft
+                  </button>
+                  <button className="btn btn-accent btn-sm" onClick={() => {
+                    const tmrw = new Date(); tmrw.setDate(tmrw.getDate() + 1);
+                    setScheduleDate(toDateKey(tmrw));
+                    setScheduleVariant(variant);
+                  }}>
+                    <SendIcon size={14} />
+                    Schedule...
+                  </button>
+                </div>
               </div>
             </article>
           );

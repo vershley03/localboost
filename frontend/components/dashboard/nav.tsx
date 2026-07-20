@@ -43,7 +43,8 @@ function NavItems({ active, onSelect }: { active: TabId; onSelect: (t: TabId) =>
 }
 
 import { OrgSwitcher } from "./org-switcher";
-import { type Org } from "@/lib/store";
+import { type Org, type ScheduledPost } from "@/lib/store";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Sidebar({
   active,
@@ -64,9 +65,11 @@ export function Sidebar({
 }) {
   return (
     <aside className="app-sidebar">
-      <Link href="/" className="app-sidebar-logo">
-        <Logo />
-      </Link>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+        <Link href="/" className="app-sidebar-logo" style={{ margin: 0, padding: 0 }}>
+          <Logo />
+        </Link>
+      </div>
       <nav className="app-nav" aria-label="Dashboard">
         <NavItems active={active} onSelect={onSelect} />
       </nav>
@@ -77,17 +80,25 @@ export function Sidebar({
           onSwitch={onSwitchOrg}
           onCreate={onCreateOrg}
         />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 12px 0', borderTop: '1px solid var(--border)', marginTop: 12 }}>
+          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Appearance</span>
+          <ThemeToggle />
+        </div>
       </div>
     </aside>
   );
 }
 
+import { NotificationBell } from "./notification-bell";
+
 export function MobileNav({
   active,
   onSelect,
+  posts,
 }: {
   active: TabId;
   onSelect: (t: TabId) => void;
+  posts: ScheduledPost[];
 }) {
   return (
     <>
@@ -95,8 +106,11 @@ export function MobileNav({
         <Link href="/" className="app-sidebar-logo" style={{ margin: 0, padding: 0 }}>
           <Logo iconSize={28} />
         </Link>
-        <div className="app-avatar" style={{ width: 34, height: 34, fontSize: 13 }}>
-          S
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <NotificationBell posts={posts} />
+          <div className="app-avatar" style={{ width: 34, height: 34, fontSize: 13 }}>
+            S
+          </div>
         </div>
       </div>
       <nav className="app-mobile-nav" aria-label="Dashboard">

@@ -134,7 +134,7 @@ export function PinSparkLogo({ size = 32, showText = true, iconSize }: { size?: 
         </svg>
       </span>
       {showText && (
-        <span style={{ fontSize: iSize * 0.56, fontWeight: 800, letterSpacing: "-0.5px", color: "#0F172A", fontFamily: "var(--font-jakarta), Plus Jakarta Sans, sans-serif", display: "inline-flex" }}>
+        <span style={{ fontSize: iSize * 0.56, fontWeight: 800, letterSpacing: "-0.5px", color: "var(--text-primary)", fontFamily: "var(--font-jakarta), Plus Jakarta Sans, sans-serif", display: "inline-flex" }}>
           Pin<span style={{ color: "#8B5CF6" }}>Spark</span>
         </span>
       )}

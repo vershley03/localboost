@@ -143,6 +143,12 @@ export const MenuIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const TwitterXIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 4l16 16M20 4L4 20" />
+  </Icon>
+);
+
 export const LoaderIcon = (p: IconProps) => (
   <Icon {...p}>
     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
@@ -208,5 +214,25 @@ export const BuildingIcon = (p: IconProps) => (
     <path d="M16 14h.01" />
     <path d="M8 10h.01" />
     <path d="M8 14h.01" />
+  </Icon>
+);
+
+export const SunIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2" /><path d="M12 20v2" /><path d="M4.93 4.93l1.41 1.41" /><path d="M17.66 17.66l1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="M6.34 17.66l-1.41 1.41" /><path d="M19.07 4.93l-1.41 1.41" />
+  </Icon>
+);
+
+export const MoonIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </Icon>
+);
+
+export const BellIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
   </Icon>
 );
