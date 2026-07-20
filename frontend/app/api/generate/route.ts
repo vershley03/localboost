@@ -13,6 +13,17 @@ export async function POST(request: Request) {
     const finalTone = customTone || brand.tone;
     const finalAudience = customAudience || brand.audience;
 
+    const charLimits: Record<string, number> = {
+      x: 280,
+      instagram: 2200,
+      facebook: 63206,
+      google: 1500,
+    };
+
+    const limitsNote = platforms
+      .map((p: string) => `${p}: max ${charLimits[p] || 2200} characters`)
+      .join(", ");
+
     const systemPrompt = `You are an expert social media manager for a local business.
 Business: ${brand.businessName}
 Category: ${brand.category}
@@ -22,6 +33,7 @@ Keywords: ${brand.keywords.join(", ")}
 
 Your task is to write high-converting, engaging social media posts based on the user's prompt. 
 You must generate one specific, tailored caption for each requested platform.
+IMPORTANT: Each platform has strict character limits. You MUST keep each caption under its limit: ${limitsNote}.
 Format the output as a JSON object with a 'posts' array. Each item in the array must have 'platform' and 'caption'.`;
 
     const userMessage = `Write posts for the following platforms: ${platforms.join(", ")}\nTopic: ${prompt}`;

@@ -38,6 +38,13 @@ interface Variant {
   source: "openai" | "template";
 }
 
+const CHAR_LIMITS: Record<Platform, number> = {
+  x: 280,
+  instagram: 2200,
+  facebook: 63206,
+  google: 1500,
+};
+
 // Downscale an image file
 function fileToDataUrl(file: File, maxDim = 768): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -442,16 +449,38 @@ export function MagicCreator({
               </div>
 
               {/* Caption Editor */}
-              <div style={{ padding: '0 16px 16px 16px' }}>
-                <textarea 
-                  className="result-caption" 
-                  value={variant.caption}
-                  onChange={(e) => updateVariantCaption(index, e.target.value)}
-                  style={{ width: '100%', minHeight: '100px', border: '1px dashed transparent', background: 'transparent', resize: 'vertical', padding: '8px', fontSize: '15px', lineHeight: '1.5', fontFamily: 'inherit', color: 'var(--text-primary)', borderRadius: '8px', transition: 'border 0.2s' }}
-                  onFocus={(e) => e.currentTarget.style.border = '1px dashed var(--border)'}
-                  onBlur={(e) => e.currentTarget.style.border = '1px dashed transparent'}
-                />
-              </div>
+              {(() => {
+                const limit = CHAR_LIMITS[variant.platform];
+                const len = variant.caption.length;
+                const pct = len / limit;
+                const counterColor = pct > 1 ? "#EA4335" : pct > 0.9 ? "#F59E0B" : "var(--text-faint)";
+                const overLimit = len > limit;
+                return (
+                  <div style={{ padding: '0 16px 16px 16px' }}>
+                    <textarea 
+                      className="result-caption" 
+                      value={variant.caption}
+                      onChange={(e) => updateVariantCaption(index, e.target.value)}
+                      style={{ width: '100%', minHeight: '100px', border: '1px dashed transparent', background: 'transparent', resize: 'vertical', padding: '8px', fontSize: '15px', lineHeight: '1.5', fontFamily: 'inherit', color: 'var(--text-primary)', borderRadius: '8px', transition: 'border 0.2s' }}
+                      onFocus={(e) => e.currentTarget.style.border = '1px dashed var(--border)'}
+                      onBlur={(e) => e.currentTarget.style.border = '1px dashed transparent'}
+                    />
+                    <div className="char-counter" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, marginTop: 4, padding: '0 8px' }}>
+                      {overLimit && (
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#EA4335', background: 'rgba(234, 67, 53, 0.1)', padding: '2px 8px', borderRadius: 4 }}>
+                          Over limit!
+                        </span>
+                      )}
+                      <div style={{ height: 3, flex: 1, maxWidth: 80, background: 'var(--border)', borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${Math.min(pct * 100, 100)}%`, background: counterColor, borderRadius: 3, transition: 'width 0.2s, background 0.2s' }} />
+                      </div>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: counterColor, fontVariantNumeric: 'tabular-nums', transition: 'color 0.2s' }}>
+                        {len}/{limit}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Action Buttons */}
               <div className="result-actions" style={{ background: 'var(--bg-secondary)', padding: '12px 16px', borderTop: '1px solid var(--border)', justifyContent: 'space-between' }}>
