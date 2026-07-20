@@ -4008,28 +4008,32 @@ body {
   padding: 40px 24px;
 }
 
-/* ===== PRICING GRID ===== */
-.pricing-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 28px;
+/* ===== CLERK PRICING TABLE STYLING ===== */
+.pricing-clerk-shell {
+  background: var(--bg-surface);
+  border-radius: 24px;
+  overflow: hidden;
   width: 100%;
-  margin: 48px 0;
 }
 
-.pricing-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 32px;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+/* Clerk PricingTable Container */
+.pricing-clerk-shell [role="main"] {
+  padding: 0 !important;
+}
+
+/* Clerk Pricing Cards */
+.pricing-clerk-shell .cl-pricing-card {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  padding: 32px !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: var(--shadow-sm) !important;
   position: relative;
   overflow: hidden;
 }
 
-.pricing-card::before {
+.pricing-clerk-shell .cl-pricing-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -4042,141 +4046,170 @@ body {
   transition: opacity 0.3s ease;
 }
 
-.pricing-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--border-hover);
+.pricing-clerk-shell .cl-pricing-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border-color: var(--border-hover) !important;
 }
 
-.pricing-card:hover::before {
+.pricing-clerk-shell .cl-pricing-card:hover::before {
   opacity: 1;
 }
 
-.pricing-card-highlighted {
-  border: 2px solid var(--accent);
-  box-shadow: var(--shadow-xl), 0 0 32px rgba(2, 132, 199, 0.15);
-  transform: scale(1.02);
+/* Highlighted card (featured plan) */
+.pricing-clerk-shell .cl-pricing-card.cl-popular {
+  border: 2px solid var(--accent) !important;
+  box-shadow: var(--shadow-xl), 0 0 32px rgba(2, 132, 199, 0.15) !important;
+  transform: scale(1.02) !important;
 }
 
-.pricing-card-highlighted:hover {
-  transform: scale(1.02) translateY(-4px);
+.pricing-clerk-shell .cl-pricing-card.cl-popular:hover {
+  transform: scale(1.02) translateY(-4px) !important;
 }
 
-.pricing-card-header {
-  margin-bottom: 32px;
+/* Card Header */
+.pricing-clerk-shell .cl-pricing-card-header {
+  margin-bottom: 24px !important;
 }
 
-.pricing-card-name {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-  letter-spacing: -0.5px;
+.pricing-clerk-shell .cl-pricing-card-name,
+.pricing-clerk-shell .cl-pricing-card-title {
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  color: var(--text-primary) !important;
+  letter-spacing: -0.5px !important;
 }
 
-.pricing-card-desc {
-  font-size: 14px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  margin: 0;
+.pricing-clerk-shell .cl-pricing-card-description {
+  font-size: 14px !important;
+  color: var(--text-muted) !important;
+  line-height: 1.5 !important;
+  margin-top: 8px !important;
 }
 
-.pricing-card-price {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  margin-bottom: 12px;
+/* Price */
+.pricing-clerk-shell .cl-pricing-card-price {
+  margin: 28px 0 !important;
 }
 
-.pricing-card-amount {
-  font-size: 44px;
-  font-weight: 800;
-  color: var(--text-primary);
-  letter-spacing: -1px;
+.pricing-clerk-shell .cl-pricing-card-price-amount,
+.pricing-clerk-shell .cl-pricing-price-amount {
+  font-size: 44px !important;
+  font-weight: 800 !important;
+  color: var(--text-primary) !important;
+  letter-spacing: -1px !important;
 }
 
-.pricing-card-period {
-  font-size: 15px;
-  color: var(--text-muted);
-  font-weight: 500;
+.pricing-clerk-shell .cl-pricing-card-price-currency {
+  font-size: 20px !important;
+  font-weight: 800 !important;
 }
 
-.pricing-card-billing {
-  display: flex;
-  align-items: center;
-  margin-bottom: 28px;
-  min-height: 32px;
+.pricing-clerk-shell .cl-pricing-card-price-period {
+  font-size: 15px !important;
+  color: var(--text-muted) !important;
+  font-weight: 500 !important;
 }
 
-.pricing-billing-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--text-muted);
-  font-weight: 500;
+/* Buttons */
+.pricing-clerk-shell button,
+.pricing-clerk-shell .cl-button {
+  background: var(--accent) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 12px 20px !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  width: 100% !important;
+  margin: 24px 0 !important;
 }
 
-.pricing-billing-toggle input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  accent-color: var(--accent);
+.pricing-clerk-shell button:hover,
+.pricing-clerk-shell .cl-button:hover {
+  background: var(--accent-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 16px rgba(2, 132, 199, 0.3) !important;
 }
 
-.pricing-card-cta {
-  width: 100%;
-  margin-bottom: 28px;
-  font-weight: 700;
+.pricing-clerk-shell button:active,
+.pricing-clerk-shell .cl-button:active {
+  transform: translateY(0) !important;
 }
 
-.pricing-card-features {
+/* Features List */
+.pricing-clerk-shell .cl-pricing-card-features,
+.pricing-clerk-shell .cl-feature-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 14px !important;
 }
 
-.pricing-feature {
+.pricing-clerk-shell .cl-pricing-card-feature,
+.pricing-clerk-shell .cl-feature-list li {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  font-size: 14px;
-  color: var(--text-muted);
-  line-height: 1.5;
+  gap: 12px !important;
+  font-size: 14px !important;
+  color: var(--text-muted) !important;
+  line-height: 1.5 !important;
+  list-style: none !important;
 }
 
-.pricing-feature svg {
+.pricing-clerk-shell .cl-pricing-card-feature svg,
+.pricing-clerk-shell .cl-feature-list li svg {
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  color: var(--sage);
+  width: 20px !important;
+  height: 20px !important;
+  color: var(--sage) !important;
   margin-top: 2px;
+  stroke-width: 2.5 !important;
+}
+
+/* Container Layout */
+.pricing-clerk-shell .cl-pricing-cards-container {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+  gap: 28px !important;
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+/* Popular badge */
+.pricing-clerk-shell .cl-badge,
+.pricing-clerk-shell .cl-popular-badge {
+  background: var(--accent-glow) !important;
+  color: var(--accent) !important;
+  padding: 6px 12px !important;
+  border-radius: 100px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 12px !important;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .pricing-grid {
-    grid-template-columns: 1fr;
+  .pricing-clerk-shell .cl-pricing-cards-container {
+    grid-template-columns: 1fr !important;
   }
 
-  .pricing-card-highlighted {
-    transform: scale(1);
+  .pricing-clerk-shell .cl-pricing-card.cl-popular {
+    transform: scale(1) !important;
   }
 
-  .pricing-card-highlighted:hover {
-    transform: translateY(-4px);
+  .pricing-clerk-shell .cl-pricing-card.cl-popular:hover {
+    transform: translateY(-4px) !important;
   }
 
-  .pricing-card {
-    padding: 24px;
+  .pricing-clerk-shell .cl-pricing-card {
+    padding: 24px !important;
   }
 
-  .pricing-card-amount {
-    font-size: 36px;
-  }
-
-  .pricing-card-name {
-    font-size: 18px;
+  .pricing-clerk-shell .cl-pricing-card-price-amount {
+    font-size: 36px !important;
   }
 }
