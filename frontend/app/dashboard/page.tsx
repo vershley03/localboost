@@ -143,7 +143,7 @@ function DashboardInner() {
   const displayName = user ? (user.firstName || user.username || "User") : userName;
 
   return (
-    <div className="app-layout">
+    <div className="app-shell">
       <Sidebar 
         active={activeTab} 
         onSelect={setActiveTab} 
