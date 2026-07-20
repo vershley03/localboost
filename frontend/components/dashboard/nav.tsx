@@ -99,10 +99,18 @@ export function MobileNav({
   active,
   onSelect,
   posts,
+  orgs,
+  activeOrgId,
+  onSwitchOrg,
+  onCreateOrg,
 }: {
   active: TabId;
   onSelect: (t: TabId) => void;
   posts: ScheduledPost[];
+  orgs: Org[];
+  activeOrgId: string;
+  onSwitchOrg: (id: string) => void;
+  onCreateOrg: () => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -141,6 +149,7 @@ export function MobileNav({
           </Link>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <ThemeToggle />
           <NotificationBell posts={posts} />
           <UserButton />
         </div>
@@ -155,6 +164,24 @@ export function MobileNav({
           <div>
             <div className="app-mobile-nav-eyebrow">Workspace</div>
             <div className="app-mobile-nav-title">Choose a section</div>
+          </div>
+        </div>
+        <div className="app-mobile-nav-utilities">
+          <div className="app-mobile-nav-org-block">
+            <div className="app-mobile-nav-section-label">Organization</div>
+            <OrgSwitcher
+              orgs={orgs}
+              activeOrgId={activeOrgId}
+              onSwitch={onSwitchOrg}
+              onCreate={onCreateOrg}
+            />
+          </div>
+          <div className="app-mobile-nav-theme-row">
+            <div>
+              <div className="app-mobile-nav-section-label">Appearance</div>
+              <div className="app-mobile-nav-theme-copy">Switch light and dark mode</div>
+            </div>
+            <ThemeToggle />
           </div>
         </div>
         <NavItems active={active} onSelect={handleSelect} />

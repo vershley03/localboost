@@ -1334,6 +1334,41 @@ body {
   color: var(--text-primary);
 }
 
+.app-mobile-nav-utilities {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.app-mobile-nav-org-block,
+.app-mobile-nav-theme-row {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--bg-base);
+  padding: 12px;
+}
+
+.app-mobile-nav-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+}
+
+.app-mobile-nav-theme-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.app-mobile-nav-theme-copy {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
 .app-page-header {
   display: flex;
   align-items: flex-start;
@@ -2596,6 +2631,10 @@ body {
     border-color: var(--accent);
   }
 
+  .app-topbar .theme-toggle {
+    flex-shrink: 0;
+  }
+
   .dashboard-preview-frame {
     border-radius: 20px;
   }
@@ -3634,6 +3673,91 @@ body {
 @media (max-width: 600px) {
   .rep-metrics {
     grid-template-columns: 1fr;
+  }
+
+  .rep-filter-bar {
+    padding: 14px 16px;
+    gap: 8px;
+  }
+
+  .rep-filter-divider {
+    display: none;
+  }
+
+  .rep-table,
+  .rep-table tbody,
+  .rep-table tr,
+  .rep-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .rep-table thead {
+    display: none;
+  }
+
+  .rep-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--bg-base);
+    padding: 12px;
+  }
+
+  .rep-table tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  .rep-table tbody tr {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--bg-surface);
+    padding: 16px;
+  }
+
+  .rep-table td {
+    padding: 0;
+    border: 0;
+  }
+
+  .rep-table td + td {
+    margin-top: 12px;
+  }
+
+  .rep-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .rep-review-text {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    max-width: none;
+    line-height: 1.6;
+  }
+
+  .rep-original-header {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .rep-original-header .rep-author-meta {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  .rep-drawer-header,
+  .rep-drawer-body,
+  .rep-drawer-footer {
+    padding-left: 16px;
+    padding-right: 16px;
   }
 }
 

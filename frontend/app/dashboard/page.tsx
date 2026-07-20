@@ -164,7 +164,15 @@ function DashboardInner() {
             </div>
           </header>
         )}
-        <MobileNav active={activeTab} onSelect={setActiveTab} posts={posts} />
+        <MobileNav
+          active={activeTab}
+          onSelect={setActiveTab}
+          posts={posts}
+          orgs={orgs}
+          activeOrgId={activeOrgId}
+          onSwitchOrg={handleSwitchOrg}
+          onCreateOrg={() => setIsOrgModalOpen(true)}
+        />
         <main className="app-main">
           {ready ? (
             <div className="app-main-inner" key={`${activeOrgId}-${activeTab}`}>

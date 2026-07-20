@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   StarIcon,
   MessageSquareIcon,
@@ -50,7 +50,7 @@ export function Reputation({
   brand: BrandProfile;
   orgId: string;
 }) {
-  const [reviews, setReviews] = useState<MockReview[]>([]);
+  const [reviews, setReviews] = useState<MockReview[]>(() => getMockReviews(orgId));
   const [selectedReview, setSelectedReview] = useState<MockReview | null>(null);
   const [draftResponse, setDraftResponse] = useState("");
   const [generating, setGenerating] = useState(false);
@@ -59,10 +59,6 @@ export function Reputation({
   const [platformFilter, setPlatformFilter] = useState<PlatformFilter>("all");
   const [ratingFilter, setRatingFilter] = useState<number | null>(null);
   const toast = useToast();
-
-  useEffect(() => {
-    setReviews(getMockReviews(orgId));
-  }, [orgId]);
 
   // ─── Computed stats ───
   const stats = useMemo(() => {
@@ -324,7 +320,7 @@ export function Reputation({
                   key={review.id}
                   onClick={() => openReviewDrawer(review)}
                 >
-                  <td>
+                  <td data-label="Customer">
                     <div className="rep-author">
                       <div className="rep-avatar">
                         {review.authorName.charAt(0)}
@@ -344,13 +340,13 @@ export function Reputation({
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Rating">
                     <Stars rating={review.rating} />
                   </td>
-                  <td>
+                  <td data-label="Review">
                     <div className="rep-review-text">{review.text}</div>
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <span className={`rep-badge ${review.status}`}>
                       {review.status === "unanswered"
                         ? "Unanswered"

@@ -1,29 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SunIcon, MoonIcon } from "@/components/icons";
 
+function getInitialDarkMode() {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem("lb:theme") === "dark";
+}
+
 export function ThemeToggle() {
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(getInitialDarkMode);
 
   useEffect(() => {
-    const saved = localStorage.getItem("lb:theme");
-    if (saved === "dark") {
-      setDark(true);
-      document.documentElement.setAttribute("data-theme", "dark");
-    }
-  }, []);
-
-  const toggle = () => {
-    const next = !dark;
-    setDark(next);
-    if (next) {
+    if (dark) {
       document.documentElement.setAttribute("data-theme", "dark");
       localStorage.setItem("lb:theme", "dark");
     } else {
       document.documentElement.removeAttribute("data-theme");
       localStorage.setItem("lb:theme", "light");
     }
+  }, [dark]);
+
+  const toggle = () => {
+    setDark((value) => !value);
   };
 
   return (
