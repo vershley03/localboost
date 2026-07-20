@@ -92,6 +92,7 @@ export function Sidebar({
 }
 
 import { NotificationBell } from "./notification-bell";
+import { UserButton } from "@clerk/nextjs";
 
 export function MobileNav({
   active,
@@ -112,9 +113,7 @@ export function MobileNav({
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <NotificationBell posts={posts} />
-          <div className="app-avatar" style={{ width: 34, height: 34, fontSize: 13 }} title={userName}>
-            {userName.charAt(0).toUpperCase()}
-          </div>
+          <UserButton />
         </div>
       </div>
       <nav className="app-mobile-nav" aria-label="Dashboard">

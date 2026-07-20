@@ -11,6 +11,8 @@ import { Reputation } from "@/components/dashboard/reputation";
 import { Integrations } from "@/components/dashboard/integrations";
 import { OrgModal } from "@/components/dashboard/org-switcher";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
+import { LogOutIcon } from "@/components/icons";
+import { useUser, UserButton } from "@clerk/nextjs";
 import {
   DEFAULT_BRAND,
   getBrand,
@@ -35,6 +37,7 @@ function DashboardInner() {
   const [orgs, setOrgs] = useState<Org[]>([]);
   const [activeOrgId, setActiveOrgId] = useState<string>("");
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
+  const { user } = useUser();
 
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
   const [brand, setBrand] = useState<BrandProfile>(DEFAULT_BRAND);
@@ -137,8 +140,10 @@ function DashboardInner() {
     toast("Organization created successfully");
   };
 
+  const displayName = user ? (user.firstName || user.username || "User") : userName;
+
   return (
-    <div className="app-shell">
+    <div className="app-layout">
       <Sidebar 
         active={activeTab} 
         onSelect={setActiveTab} 
@@ -156,25 +161,11 @@ function DashboardInner() {
             </div>
             <div className="app-header-right">
               <NotificationBell posts={posts} />
-              <div 
-                className="user-profile-widget" 
-                onClick={() => {
-                  const name = prompt("Change profile name:", userName);
-                  if (name !== null && name.trim() !== "") {
-                    updateUserName(name.trim());
-                  }
-                }}
-                title="Click to edit profile name"
-              >
-                <div className="app-avatar" style={{ width: 32, height: 32, fontSize: 13 }}>
-                  {userName.charAt(0).toUpperCase()}
-                </div>
-                <span className="user-name-text">{userName}</span>
-              </div>
+              <UserButton showName />
             </div>
           </header>
         )}
-        <MobileNav active={activeTab} onSelect={setActiveTab} posts={posts} userName={userName} />
+        <MobileNav active={activeTab} onSelect={setActiveTab} posts={posts} userName={displayName} />
         <main className="app-main">
           {ready ? (
             <div className="app-main-inner" key={`${activeOrgId}-${activeTab}`}>
@@ -184,7 +175,7 @@ function DashboardInner() {
                   generationCount={generationCount}
                   businessName={brand.businessName}
                   onNavigate={setActiveTab}
-                  userName={userName}
+                  userName={displayName}
                 />
               )}
               {activeTab === "creator" && (
