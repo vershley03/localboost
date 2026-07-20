@@ -67,6 +67,17 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <>
       <div className="mesh-bg">
@@ -96,6 +107,7 @@ export default function Home() {
             className="mobile-menu-btn"
             onClick={() => setMenuOpen((v) => !v)}
             aria-expanded={menuOpen}
+            aria-controls="site-mobile-menu"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
           >
             {menuOpen ? <XIcon size={22} /> : <MenuIcon size={22} />}
@@ -103,16 +115,38 @@ export default function Home() {
         </div>
       </nav>
 
-      {menuOpen && (
-        <div className="mobile-menu">
+      {menuOpen && <button type="button" className="mobile-menu-backdrop" aria-label="Close menu" onClick={() => setMenuOpen(false)} />}
+
+      <div id="site-mobile-menu" className={`mobile-menu${menuOpen ? " open" : ""}`}>
+        <div className="mobile-menu-header">
+          <div>
+            <div className="mobile-menu-eyebrow">PinSpark</div>
+            <div className="mobile-menu-title">Explore the product</div>
+          </div>
+          <button
+            type="button"
+            className="mobile-menu-close"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <XIcon size={18} />
+          </button>
+        </div>
+
+        <div className="mobile-menu-links">
           {NAV_LINKS.map((link) => (
             <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>
-              {link.label}
+              <span>{link.label}</span>
+              <span className="mobile-menu-link-arrow">&gt;</span>
             </a>
           ))}
-          <a href="/dashboard" onClick={() => setMenuOpen(false)}>Sign in</a>
         </div>
-      )}
+
+        <div className="mobile-menu-actions">
+          <a href="/dashboard" className="btn btn-outline" onClick={() => setMenuOpen(false)}>Sign in</a>
+          <a href="/pricing" className="btn btn-primary" onClick={() => setMenuOpen(false)}>Start free</a>
+        </div>
+      </div>
 
       {/* ===== HERO ===== */}
       <section className="hero">

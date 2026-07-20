@@ -147,7 +147,6 @@ function DashboardInner() {
       <Sidebar 
         active={activeTab} 
         onSelect={setActiveTab} 
-        businessName={brand.businessName}
         orgs={orgs}
         activeOrgId={activeOrgId}
         onSwitchOrg={handleSwitchOrg}
@@ -165,7 +164,7 @@ function DashboardInner() {
             </div>
           </header>
         )}
-        <MobileNav active={activeTab} onSelect={setActiveTab} posts={posts} userName={displayName} />
+        <MobileNav active={activeTab} onSelect={setActiveTab} posts={posts} />
         <main className="app-main">
           {ready ? (
             <div className="app-main-inner" key={`${activeOrgId}-${activeTab}`}>

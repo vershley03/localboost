@@ -24,9 +24,11 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <PricingTable
-          newSubscriptionRedirectUrl="/dashboard"
-        />
+        <div className="pricing-table-shell">
+          <PricingTable
+            newSubscriptionRedirectUrl="/dashboard"
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,13 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   CalendarIcon,
   FingerprintIcon,
   HomeIcon,
+  MenuIcon,
   PlugIcon,
   SparklesIcon,
   StarIcon,
+  XIcon,
 } from "@/components/icons";
 import { PinSparkLogo } from "@/components/logo";
 
@@ -51,7 +54,6 @@ import { ThemeToggle } from "./theme-toggle";
 export function Sidebar({
   active,
   onSelect,
-  businessName,
   orgs,
   activeOrgId,
   onSwitchOrg,
@@ -59,7 +61,6 @@ export function Sidebar({
 }: {
   active: TabId;
   onSelect: (t: TabId) => void;
-  businessName: string;
   orgs: Org[];
   activeOrgId: string;
   onSwitchOrg: (id: string) => void;
@@ -98,26 +99,65 @@ export function MobileNav({
   active,
   onSelect,
   posts,
-  userName = "Sarah",
 }: {
   active: TabId;
   onSelect: (t: TabId) => void;
   posts: ScheduledPost[];
-  userName?: string;
 }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 900) {
+        setMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handleSelect = (tab: TabId) => {
+    onSelect(tab);
+    setMenuOpen(false);
+  };
+
   return (
     <>
       <div className="app-topbar">
-        <Link href="/" className="app-sidebar-logo" style={{ margin: 0, padding: 0 }}>
-          <Logo iconSize={28} />
-        </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button
+            type="button"
+            className="app-mobile-menu-btn"
+            onClick={() => setMenuOpen((value) => !value)}
+            aria-expanded={menuOpen}
+            aria-controls="dashboard-mobile-menu"
+            aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+          >
+            {menuOpen ? <XIcon size={20} /> : <MenuIcon size={20} />}
+          </button>
+          <Link href="/" className="app-sidebar-logo" style={{ margin: 0, padding: 0 }}>
+            <Logo iconSize={28} />
+          </Link>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <NotificationBell posts={posts} />
           <UserButton />
         </div>
       </div>
-      <nav className="app-mobile-nav" aria-label="Dashboard">
-        <NavItems active={active} onSelect={onSelect} />
+      {menuOpen && <button type="button" className="app-mobile-menu-backdrop" aria-label="Close navigation" onClick={() => setMenuOpen(false)} />}
+      <nav
+        id="dashboard-mobile-menu"
+        className={`app-mobile-nav${menuOpen ? " open" : ""}`}
+        aria-label="Dashboard"
+      >
+        <div className="app-mobile-nav-header">
+          <div>
+            <div className="app-mobile-nav-eyebrow">Workspace</div>
+            <div className="app-mobile-nav-title">Choose a section</div>
+          </div>
+        </div>
+        <NavItems active={active} onSelect={handleSelect} />
       </nav>
     </>
   );
