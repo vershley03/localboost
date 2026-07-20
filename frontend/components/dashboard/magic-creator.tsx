@@ -69,6 +69,35 @@ function fileToDataUrl(file: File, maxDim = 768): Promise<string> {
   });
 }
 
+function cropDataUrl(dataUrl: string, aspectRatio: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
+      
+      const currentRatio = img.width / img.height;
+      if (currentRatio > aspectRatio) {
+        sourceWidth = img.height * aspectRatio;
+        sourceX = (img.width - sourceWidth) / 2;
+      } else {
+        sourceHeight = img.width / aspectRatio;
+        sourceY = (img.height - sourceHeight) / 2;
+      }
+      
+      canvas.width = sourceWidth;
+      canvas.height = sourceHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, sourceWidth, sourceHeight);
+      }
+      resolve(canvas.toDataURL("image/jpeg", 0.9));
+    };
+    img.onerror = () => reject(new Error("Failed to load image for cropping"));
+    img.src = dataUrl;
+  });
+}
+
 // Minimal fallback if the real API fails
 function templateGenerate(prompt: string, platforms: Platform[], brand: BrandProfile): Variant[] {
   return platforms.map((p) => ({
@@ -98,6 +127,8 @@ export function MagicCreator({
   const [ideas, setIdeas] = useState<string[]>([]);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [image, setImage] = useState<string | null>(null);
+  const [originalImage, setOriginalImage] = useState<string | null>(null);
+  const [previewVariant, setPreviewVariant] = useState<Variant | null>(null);
   
   // Custom Tone & Audience Overrides
   const [tone, setTone] = useState(brand.tone);
@@ -107,9 +138,28 @@ export function MagicCreator({
   const [scheduleVariant, setScheduleVariant] = useState<Variant | null>(null);
   const [scheduleDate, setScheduleDate] = useState<string>("");
   const [scheduleTime, setScheduleTime] = useState<string>("17:00");
+  const [suggestReason, setSuggestReason] = useState<string | null>(null);
   
   const fileInput = useRef<HTMLInputElement>(null);
   const toast = useToast();
+
+  const applyCrop = async (aspectRatio: number) => {
+    if (!originalImage) return;
+    try {
+      const cropped = await cropDataUrl(originalImage, aspectRatio);
+      setImage(cropped);
+      toast("Image cropped successfully!");
+    } catch {
+      toast("Failed to crop image", "error");
+    }
+  };
+
+  const resetCrop = () => {
+    if (originalImage) {
+      setImage(originalImage);
+      toast("Image reset to original");
+    }
+  };
 
   const togglePlatform = (p: Platform) => {
     setSelected((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
@@ -119,7 +169,9 @@ export function MagicCreator({
     if (!file) return;
     if (!file.type.startsWith("image/")) return toast("That file isn't an image", "error");
     try {
-      setImage(await fileToDataUrl(file));
+      const dataUrl = await fileToDataUrl(file);
+      setImage(dataUrl);
+      setOriginalImage(dataUrl);
     } catch {
       toast("Couldn't read that image", "error");
     }
@@ -137,6 +189,7 @@ export function MagicCreator({
       const data = await res.json();
       if (data.imageUrl) {
         setImage(data.imageUrl);
+        setOriginalImage(data.imageUrl);
         toast("AI Image generated successfully!");
       } else {
         toast("Missing API Key or failed to generate", "error");
@@ -258,12 +311,15 @@ export function MagicCreator({
   };
 
   const suggestTime = (platform: Platform) => {
-    // Mock best times per platform
-    if (platform === 'instagram') setScheduleTime("18:00");
-    else if (platform === 'facebook') setScheduleTime("12:00");
-    else if (platform === 'x') setScheduleTime("14:00");
-    else setScheduleTime("09:00");
-    toast("Applied suggested best time");
+    const suggestions: Record<Platform, { time: string; reason: string }> = {
+      instagram: { time: "18:00", reason: "6:00 PM suggested — peak engagement for visual content; followers are most active after work hours" },
+      facebook: { time: "12:00", reason: "12:00 PM suggested — lunchtime scroll window; highest organic reach for local business pages" },
+      x: { time: "14:00", reason: "2:00 PM suggested — mid-afternoon peak; trending topics gain maximum impressions at this hour" },
+      google: { time: "09:00", reason: "9:00 AM suggested — morning search surge; Google Business posts surface during peak local intent queries" },
+    };
+    const s = suggestions[platform];
+    setScheduleTime(s.time);
+    setSuggestReason(s.reason);
   };
 
   return (
@@ -286,13 +342,30 @@ export function MagicCreator({
           maxLength={500}
         />
 
+        {generatingImage && !image && (
+          <div className="composer-attachment">
+            <div className="image-gen-shimmer">
+              <div className="shimmer-icon"><SparklesIcon size={24} /></div>
+              <div className="shimmer-text">Generating AI image…</div>
+            </div>
+          </div>
+        )}
+
         {image && (
           <div className="composer-attachment">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={image} alt="Attached to post" />
-            <button className="composer-attachment-remove" onClick={() => setImage(null)}>
+            <button className="composer-attachment-remove" onClick={() => { setImage(null); setOriginalImage(null); }}>
               <XIcon size={13} />
             </button>
+            {originalImage && (
+              <div className="crop-controls">
+                <button className="chip" onClick={() => applyCrop(1)}>1:1</button>
+                <button className="chip" onClick={() => applyCrop(4/5)}>4:5</button>
+                <button className="chip" onClick={() => applyCrop(16/9)}>16:9</button>
+                <button className="chip" onClick={resetCrop}>Reset</button>
+              </div>
+            )}
           </div>
         )}
 
@@ -509,14 +582,32 @@ export function MagicCreator({
                   }}>
                     Save Draft
                   </button>
-                  <button className="btn btn-accent btn-sm" onClick={() => {
-                    const tmrw = new Date(); tmrw.setDate(tmrw.getDate() + 1);
-                    setScheduleDate(toDateKey(tmrw));
-                    setScheduleVariant(variant);
-                  }}>
-                    <SendIcon size={14} />
-                    Schedule...
-                  </button>
+                  {(() => {
+                    const isOverLimit = variant.caption.length > CHAR_LIMITS[variant.platform];
+                    return (
+                      <div style={{ position: 'relative' }} className="schedule-btn-wrapper">
+                        <button
+                          className="btn btn-accent btn-sm"
+                          disabled={isOverLimit}
+                          onClick={() => {
+                            const tmrw = new Date(); tmrw.setDate(tmrw.getDate() + 1);
+                            setScheduleDate(toDateKey(tmrw));
+                            setSuggestReason(null);
+                            setScheduleVariant(variant);
+                          }}
+                          title={isOverLimit ? `Caption exceeds ${CHAR_LIMITS[variant.platform]} character limit for ${meta.label}` : undefined}
+                        >
+                          <SendIcon size={14} />
+                          Schedule...
+                        </button>
+                        {isOverLimit && (
+                          <div className="over-limit-banner">
+                            ⚠️ Exceeds {meta.label} limit — trim {variant.caption.length - CHAR_LIMITS[variant.platform]} chars to schedule
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </article>
@@ -541,13 +632,21 @@ export function MagicCreator({
               
               <div>
                 <label className="field-label">Time</label>
-                <input type="time" className="input" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} />
+                <input type="time" className="input" value={scheduleTime} onChange={(e) => { setScheduleTime(e.target.value); setSuggestReason(null); }} />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-                <button className="btn btn-outline btn-sm" onClick={() => suggestTime(scheduleVariant.platform)}>
-                  <SparklesIcon size={14} /> Auto-suggest best time
-                </button>
+              <button className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => suggestTime(scheduleVariant.platform)}>
+                <SparklesIcon size={14} /> Auto-suggest best time
+              </button>
+
+              {suggestReason && (
+                <div className="suggest-reason-tooltip">
+                  <SparklesIcon size={14} />
+                  <span>{suggestReason}</span>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px' }}>
                 <button className="btn btn-accent" onClick={finalizeSchedule}>Confirm Schedule</button>
               </div>
             </div>

@@ -200,6 +200,7 @@ function DashboardInner() {
                   posts={posts}
                   onAdd={(post) => updatePosts([...posts, post])}
                   onRemove={(id) => updatePosts(posts.filter((p) => p.id !== id))}
+                  onEdit={(id, updates) => updatePosts(posts.map(p => p.id === id ? { ...p, ...updates } : p))}
                 />
               )}
               {activeTab === "brand" && (
