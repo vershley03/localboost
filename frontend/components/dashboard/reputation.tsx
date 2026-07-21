@@ -150,9 +150,7 @@ export function Reputation({
     setSelectedReview(review);
     setDraftResponse(review.replyText || "");
     setActiveTone("standard");
-    if (!review.replyText) {
-      setTimeout(() => handleGenerateResponse("Standard Brand Voice"), 0);
-    }
+    // User must explicitly click "Generate AI Response" or tone chips to avoid unwanted API calls
   };
 
   const handleToneClick = (tone: (typeof TONE_MODIFIERS)[number]) => {
@@ -203,29 +201,35 @@ export function Reputation({
 
         <div className="rep-metric-card">
           <div className="rep-metric-label">Sentiment Trend</div>
-          <div className="rep-sentiment-bar">
+          <div className="rep-sentiment-bar" role="progressbar" aria-label={`Sentiment breakdown: ${stats.positive} positive, ${stats.neutral} neutral, ${stats.negative} negative`}>
             <div
               className="rep-sentiment-seg positive"
               style={{ width: `${pctPositive}%` }}
+              role="presentation"
+              title={`Positive: ${stats.positive} reviews (${pctPositive.toFixed(0)}%)`}
             />
             <div
               className="rep-sentiment-seg neutral"
               style={{ width: `${pctNeutral}%` }}
+              role="presentation"
+              title={`Neutral: ${stats.neutral} reviews (${pctNeutral.toFixed(0)}%)`}
             />
             <div
               className="rep-sentiment-seg negative"
               style={{ width: `${pctNegative}%` }}
+              role="presentation"
+              title={`Negative: ${stats.negative} reviews (${pctNegative.toFixed(0)}%)`}
             />
           </div>
           <div className="rep-sentiment-legend">
-            <span>
-              <i className="rep-sentiment-dot positive" /> {stats.positive}
+            <span title="Positive reviews (4-5 stars)" role="tooltip">
+              <i className="rep-sentiment-dot positive" aria-label="Positive sentiment"/> {stats.positive} Positive
             </span>
-            <span>
-              <i className="rep-sentiment-dot neutral" /> {stats.neutral}
+            <span title="Neutral reviews (3 stars)" role="tooltip">
+              <i className="rep-sentiment-dot neutral" aria-label="Neutral sentiment" /> {stats.neutral} Neutral
             </span>
-            <span>
-              <i className="rep-sentiment-dot negative" /> {stats.negative}
+            <span title="Negative reviews (1-2 stars)" role="tooltip">
+              <i className="rep-sentiment-dot negative" aria-label="Negative sentiment" /> {stats.negative} Negative
             </span>
           </div>
         </div>
@@ -409,6 +413,9 @@ export function Reputation({
                     <div className="rep-ai-title">
                       <SparklesIcon size={16} /> AI Draft
                     </div>
+                    <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
+                      Click a tone below or the "Generate AI Response" button to create a draft.
+                    </p>
                     <div className="rep-tone-chips">
                       {TONE_MODIFIERS.map((tone) => (
                         <button
@@ -416,6 +423,7 @@ export function Reputation({
                           className={`rep-tone-chip ${activeTone === tone.id ? "active" : ""}`}
                           onClick={() => handleToneClick(tone)}
                           disabled={generating}
+                          title={`Generate response with ${tone.value} tone`}
                         >
                           {tone.label}
                         </button>
@@ -428,7 +436,8 @@ export function Reputation({
                       className={`rep-draft-textarea ${generating ? "loading" : ""}`}
                       value={draftResponse}
                       onChange={(e) => setDraftResponse(e.target.value)}
-                      placeholder="AI is drafting your response..."
+                      placeholder={generating ? "AI is drafting your response..." : "No draft yet. Select a tone or click Generate to create one."}
+                      aria-label="AI-generated response draft"
                     />
                     {generating && (
                       <div className="rep-draft-loader">
@@ -438,18 +447,30 @@ export function Reputation({
                     )}
                   </div>
 
-                  <button
-                    className="btn btn-secondary"
-                    style={{ alignSelf: "flex-start", gap: 6, display: "flex", alignItems: "center" }}
-                    onClick={() => handleGenerateResponse(TONE_MODIFIERS.find(t => t.id === activeTone)?.value || "")}
-                    disabled={generating}
-                  >
-                    <RefreshIcon size={14} /> Regenerate
-                  </button>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      className="btn btn-secondary"
+                      style={{ gap: 6, display: "flex", alignItems: "center" }}
+                      onClick={() => handleGenerateResponse(TONE_MODIFIERS.find(t => t.id === activeTone)?.value || "")}
+                      disabled={generating}
+                    >
+                      <SparklesIcon size={14} /> Generate AI Response
+                    </button>
+                    {draftResponse && (
+                      <button
+                        className="btn btn-secondary"
+                        style={{ gap: 6, display: "flex", alignItems: "center" }}
+                        onClick={() => handleGenerateResponse(TONE_MODIFIERS.find(t => t.id === activeTone)?.value || "")}
+                        disabled={generating}
+                      >
+                        <RefreshIcon size={14} /> Regenerate
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
 
-              {/* Already replied */}
+              {/* Already replied - editable */}
               {selectedReview.status === "replied" && (
                 <div>
                   <h3
@@ -461,9 +482,16 @@ export function Reputation({
                   >
                     Your Reply
                   </h3>
-                  <div className="rep-reply-display">
-                    <p>{selectedReview.replyText}</p>
-                  </div>
+                  <textarea
+                    className="rep-draft-textarea"
+                    value={draftResponse}
+                    onChange={(e) => setDraftResponse(e.target.value)}
+                    aria-label="Edit your response"
+                    style={{ minHeight: 140 }}
+                  />
+                  <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 8 }}>
+                    You can edit your response. Click "Update Reply" to save changes.
+                  </p>
                 </div>
               )}
             </div>
@@ -477,6 +505,17 @@ export function Reputation({
                   disabled={!draftResponse || generating}
                 >
                   <MessageSquareIcon size={18} /> Approve & Submit
+                </button>
+              </div>
+            )}
+            {selectedReview.status === "replied" && (
+              <div className="rep-drawer-footer">
+                <button
+                  className="btn btn-accent btn-lg rep-submit-btn"
+                  onClick={handleSubmitResponse}
+                  disabled={!draftResponse || generating}
+                >
+                  <MessageSquareIcon size={18} /> Update Reply
                 </button>
               </div>
             )}
