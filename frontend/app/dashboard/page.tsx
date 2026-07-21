@@ -16,19 +16,26 @@ import { useUser, UserButton } from "@clerk/nextjs";
 import {
   DEFAULT_BRAND,
   getBrand,
+  getBrandKit,
+  getAssets,
   getConnections,
   getGenerationCount,
   getPosts,
   saveBrand,
+  saveBrandKit,
+  saveAssets,
   saveConnections,
   savePosts,
   ensureMigrated,
   getOrgs,
   createOrg,
   type BrandProfile,
+  type BrandKit,
+  type BrandAsset,
   type Connections,
   type ScheduledPost,
   type Org,
+  DEFAULT_BRAND_KIT,
 } from "@/lib/store";
 
 function DashboardInner() {
@@ -41,6 +48,8 @@ function DashboardInner() {
 
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
   const [brand, setBrand] = useState<BrandProfile>(DEFAULT_BRAND);
+  const [brandKit, setBrandKit] = useState<BrandKit>(DEFAULT_BRAND_KIT);
+  const [assets, setAssets] = useState<BrandAsset[]>([]);
   const [connections, setConnections] = useState<Connections>({
     instagram: false,
     facebook: false,
@@ -72,6 +81,8 @@ function DashboardInner() {
   const loadOrgData = (orgId: string) => {
     setPosts(getPosts(orgId));
     setBrand(getBrand(orgId));
+    setBrandKit(getBrandKit(orgId));
+    setAssets(getAssets(orgId));
     setConnections(getConnections(orgId));
     setGenerationCount(getGenerationCount(orgId));
   };
@@ -115,6 +126,16 @@ function DashboardInner() {
     setBrand(next);
     saveBrand(activeOrgId, next);
     setOrgs(getOrgs()); // Re-sync orgs list in case business name changed
+  };
+
+  const updateBrandKit = (next: BrandKit) => {
+    setBrandKit(next);
+    saveBrandKit(activeOrgId, next);
+  };
+
+  const updateAssets = (next: BrandAsset[]) => {
+    setAssets(next);
+    saveAssets(activeOrgId, next);
   };
 
   const updateConnections = (next: Connections) => {
@@ -189,6 +210,8 @@ function DashboardInner() {
                 <MagicCreator
                   orgId={activeOrgId}
                   brand={brand}
+                  brandKit={brandKit}
+                  assets={assets}
                   onSchedule={(post) => updatePosts([...posts, post])}
                   onGenerated={setGenerationCount}
                 />
@@ -202,7 +225,19 @@ function DashboardInner() {
                 />
               )}
               {activeTab === "brand" && (
-                <BrandProfileView brand={brand} onSave={updateBrand} />
+                <BrandProfileView
+                  brand={brand}
+                  onSave={updateBrand}
+                  brandKit={brandKit}
+                  onSaveBrandKit={updateBrandKit}
+                  orgId={activeOrgId}
+                  assets={assets}
+                  onAssetsChange={updateAssets}
+                  onUseInCreator={(asset) => {
+                    // Switch to creator tab with asset pre-loaded
+                    setActiveTab("creator");
+                  }}
+                />
               )}
               {activeTab === "reputation" && (
                 <Reputation brand={brand} orgId={activeOrgId} />

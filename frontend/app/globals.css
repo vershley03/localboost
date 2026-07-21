@@ -4203,3 +4203,29 @@ body {
     font-size: 36px !important;
   }
 }
+
+/* ===== ASSET LIBRARY ===== */
+.asset-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-hover);
+}
+
+.asset-card:hover .asset-card-actions {
+  opacity: 1 !important;
+}
+
+/* ===== LOGO DROPZONE ===== */
+.logo-dropzone:hover {
+  border-color: var(--accent) !important;
+  background: var(--accent-subtle) !important;
+}
+
+/* ===== BRAND COLOR FIELD ===== */
+.brand-color-field input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+.brand-color-field input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 6px;
+}

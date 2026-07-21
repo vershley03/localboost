@@ -19,6 +19,80 @@ export interface ScheduledPost {
   imageUrl?: string; // small data URL thumbnail
 }
 
+export type VisualStylePreset =
+  | "cozy_rustic"
+  | "modern_minimal"
+  | "bold_vibrant"
+  | "earthy_natural"
+  | "luxury_dark"
+  | "custom";
+
+export const VISUAL_STYLE_PRESETS: Record<
+  VisualStylePreset,
+  { label: string; description: string; prompt: string }
+> = {
+  cozy_rustic: {
+    label: "Cozy & Rustic",
+    description: "Warm morning light, wooden textures, natural materials",
+    prompt:
+      "warm morning light, wooden textures, natural materials, soft shadows, inviting atmosphere",
+  },
+  modern_minimal: {
+    label: "Modern & Minimal",
+    description: "Clean lines, white space, geometric shapes",
+    prompt:
+      "clean lines, white space, geometric shapes, flat design, minimalist aesthetic",
+  },
+  bold_vibrant: {
+    label: "Bold & Vibrant",
+    description: "Saturated colors, dynamic angles, high contrast",
+    prompt:
+      "saturated colors, dynamic angles, high contrast, energetic composition, bold shapes",
+  },
+  earthy_natural: {
+    label: "Earthy & Natural",
+    description: "Organic tones, greenery, soft textures",
+    prompt:
+      "organic earth tones, greenery, soft textures, natural light, sustainable aesthetic",
+  },
+  luxury_dark: {
+    label: "Luxury & Dark",
+    description: "Deep tones, gold accents, moody lighting",
+    prompt:
+      "deep dark tones, gold accents, moody lighting, premium feel, sophisticated elegance",
+  },
+  custom: {
+    label: "Custom",
+    description: "Define your own visual style",
+    prompt: "",
+  },
+};
+
+export interface BrandColors {
+  primary: string;
+  secondary: string;
+  accent: string;
+}
+
+export interface BrandKit {
+  logoUrl: string | null; // data URL for MVP
+  iconUrl: string | null; // data URL for MVP
+  colors: BrandColors;
+  visualStyle: VisualStylePreset;
+  customStylePrompt: string; // used when visualStyle === "custom"
+}
+
+export interface BrandAsset {
+  id: string;
+  orgId: string;
+  type: "logo" | "product" | "lifestyle" | "background";
+  name: string;
+  url: string; // data URL for MVP
+  tags: string[];
+  useCount: number;
+  createdAt: string; // ISO date
+}
+
 export interface BrandProfile {
   businessName: string;
   category: string;
@@ -88,6 +162,14 @@ export const DEFAULT_BRAND: BrandProfile = {
   keywords: ["specialty coffee", "cozy", "locally roasted"],
 };
 
+export const DEFAULT_BRAND_KIT: BrandKit = {
+  logoUrl: null,
+  iconUrl: null,
+  colors: { primary: "#0284C7", secondary: "#8B5CF6", accent: "#F97316" },
+  visualStyle: "cozy_rustic",
+  customStylePrompt: "",
+};
+
 const DEFAULT_CONNECTIONS: Connections = {
   instagram: false,
   facebook: false,
@@ -151,7 +233,7 @@ export function deleteOrg(orgId: string) {
   saveOrgs(orgs);
 
   // Clean up namespaced data
-  for (const suffix of ["posts", "brand", "connections", "generations"]) {
+  for (const suffix of ["posts", "brand", "connections", "generations", "brand-kit", "assets", "reviews"]) {
     remove(orgKey(orgId, suffix));
   }
 
@@ -407,4 +489,76 @@ export function getMockReviews(orgId: string): MockReview[] {
 
 export function saveMockReviews(orgId: string, reviews: MockReview[]) {
   write(orgKey(orgId, "reviews"), reviews);
+}
+
+// ─── Brand Kit ───────────────────────────────────────────────────────────────
+
+export function getBrandKit(orgId: string): BrandKit {
+  return read<BrandKit>(orgKey(orgId, "brand-kit"), DEFAULT_BRAND_KIT);
+}
+
+export function saveBrandKit(orgId: string, kit: BrandKit) {
+  write(orgKey(orgId, "brand-kit"), kit);
+}
+
+// ─── Asset Library ───────────────────────────────────────────────────────────
+
+export function getAssets(orgId: string): BrandAsset[] {
+  return read<BrandAsset[]>(orgKey(orgId, "assets"), []);
+}
+
+export function saveAssets(orgId: string, assets: BrandAsset[]) {
+  write(orgKey(orgId, "assets"), assets);
+}
+
+export function addAsset(orgId: string, asset: Omit<BrandAsset, "id" | "orgId" | "createdAt" | "useCount">): BrandAsset {
+  const full: BrandAsset = {
+    ...asset,
+    id: newId(),
+    orgId,
+    useCount: 0,
+    createdAt: new Date().toISOString(),
+  };
+  const assets = getAssets(orgId);
+  assets.unshift(full);
+  saveAssets(orgId, assets);
+  return full;
+}
+
+export function deleteAsset(orgId: string, assetId: string) {
+  const assets = getAssets(orgId).filter((a) => a.id !== assetId);
+  saveAssets(orgId, assets);
+}
+
+export function bumpAssetUseCount(orgId: string, assetId: string) {
+  const assets = getAssets(orgId);
+  const idx = assets.findIndex((a) => a.id === assetId);
+  if (idx >= 0) {
+    assets[idx].useCount++;
+    saveAssets(orgId, assets);
+  }
+}
+
+// ─── Brand-aware image prompt builder ────────────────────────────────────────
+
+export function buildImagePrompt(
+  subject: string,
+  brand: BrandProfile,
+  kit: BrandKit,
+): string {
+  const preset = VISUAL_STYLE_PRESETS[kit.visualStyle];
+  const styleDesc =
+    kit.visualStyle === "custom" && kit.customStylePrompt
+      ? kit.customStylePrompt
+      : preset.prompt;
+
+  const parts = [
+    `Subject: ${subject}.`,
+    `Brand visual style: ${styleDesc}.`,
+    `Color palette: ${kit.colors.primary}, ${kit.colors.secondary}, ${kit.colors.accent}.`,
+    brand.audience ? `Target audience: ${brand.audience}.` : "",
+    "No text, no watermark, 4k, professional photography.",
+  ];
+
+  return parts.filter(Boolean).join(" ");
 }

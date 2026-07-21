@@ -31,7 +31,11 @@ model Business {
   description  String?
   website      String?
   instagramUrl String?
-  brandColors  String?
+  brandColors  Json?     // {primary, secondary, accent}
+  logoUrl      String?
+  iconUrl      String?
+  visualStyle  String?   @default("cozy_rustic")
+  customStylePrompt String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -45,16 +49,18 @@ model Business {
 }
 
 model BrandProfile {
-  id              String   @id @default(cuid())
-  businessId      String   @unique
-  tone            String
-  targetAudience  String
-  keywords        String[]
-  avoidWords      String[]
-  visualStyle     String
-  contentStrategy String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(cuid())
+  businessId        String   @unique
+  tone              String
+  targetAudience    String
+  keywords          String[]
+  avoidWords        String[]
+  visualStyle       String   // visual style preset name
+  visualStylePreset String?  @default("cozy_rustic") // cozy_rustic | modern_minimal | bold_vibrant | earthy_natural | luxury_dark | custom
+  customStylePrompt String?
+  contentStrategy   String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   business Business @relation(fields: [businessId], references: [id])
 }
@@ -62,11 +68,18 @@ model BrandProfile {
 model Asset {
   id         String   @id @default(cuid())
   businessId String
-  type       String // image | video | document
+  orgId      String?  // Clerk org ID for multi-tenant scoping
+  type       String   // logo | product | lifestyle | background
+  name       String   @default("")
   url        String
+  tags       String[]
+  useCount   Int      @default(0)
   createdAt  DateTime @default(now())
 
   business Business @relation(fields: [businessId], references: [id])
+
+  @@index([businessId])
+  @@index([orgId])
 }
 
 model ContentCalendar {

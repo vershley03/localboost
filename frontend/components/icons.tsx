@@ -257,3 +257,67 @@ export const LogOutIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const PaletteIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="13.5" cy="6.5" r="0.5" fill="currentColor" />
+    <circle cx="17.5" cy="10.5" r="0.5" fill="currentColor" />
+    <circle cx="8.5" cy="7.5" r="0.5" fill="currentColor" />
+    <circle cx="6.5" cy="12" r="0.5" fill="currentColor" />
+    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
+  </Icon>
+);
+
+export const UploadIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="17 8 12 3 7 8" />
+    <line x1="12" y1="3" x2="12" y2="15" />
+  </Icon>
+);
+
+export const TrashIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+  </Icon>
+);
+
+export const SearchIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </Icon>
+);
+
+export const GridIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="3" y="3" width="7" height="7" />
+    <rect x="14" y="3" width="7" height="7" />
+    <rect x="14" y="14" width="7" height="7" />
+    <rect x="3" y="14" width="7" height="7" />
+  </Icon>
+);
+
+export const EyeDropperIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="m2 22 1-1h3l9-9" />
+    <path d="M3 21v-3l9-9" />
+    <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4z" />
+  </Icon>
+);
+
+export const LayoutGridIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="3" y="3" width="7" height="7" rx="1" />
+    <rect x="14" y="3" width="7" height="7" rx="1" />
+    <rect x="14" y="14" width="7" height="7" rx="1" />
+    <rect x="3" y="14" width="7" height="7" rx="1" />
+  </Icon>
+);
+
+export const FolderIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
+  </Icon>
+);
+

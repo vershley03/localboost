@@ -17,11 +17,15 @@ import {
 import { useToast } from "@/components/toast";
 import {
   bumpGenerationCount,
+  buildImagePrompt,
   newId,
   toDateKey,
+  type BrandAsset,
+  type BrandKit,
   type BrandProfile,
   type Platform,
   type ScheduledPost,
+  bumpAssetUseCount,
 } from "@/lib/store";
 
 const PLATFORMS: { id: Platform; label: string; icon: typeof InstagramIcon }[] = [
@@ -111,11 +115,15 @@ function templateGenerate(prompt: string, platforms: Platform[], brand: BrandPro
 export function MagicCreator({
   orgId,
   brand,
+  brandKit,
+  assets,
   onSchedule,
   onGenerated,
 }: {
   orgId: string;
   brand: BrandProfile;
+  brandKit: BrandKit;
+  assets: BrandAsset[];
   onSchedule: (post: ScheduledPost) => void;
   onGenerated: (count: number) => void;
 }) {
@@ -128,6 +136,7 @@ export function MagicCreator({
   const [variants, setVariants] = useState<Variant[]>([]);
   const [image, setImage] = useState<string | null>(null);
   const [originalImage, setOriginalImage] = useState<string | null>(null);
+  const [showAssetDrawer, setShowAssetDrawer] = useState(false);
   const [previewVariant, setPreviewVariant] = useState<Variant | null>(null);
   
   // Custom Tone & Audience Overrides
@@ -181,10 +190,11 @@ export function MagicCreator({
     if (!prompt) return toast("Type a prompt first to generate an image", "error");
     setGeneratingImage(true);
     try {
+      const enhancedPrompt = buildImagePrompt(prompt, brand, brandKit);
       const res = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, brand })
+        body: JSON.stringify({ prompt: enhancedPrompt, brand, brandKit })
       });
       const data = await res.json();
       if (data.imageUrl) {
@@ -405,6 +415,11 @@ export function MagicCreator({
                 {generatingImage ? <LoaderIcon size={15} className="spin" /> : <SparklesIcon size={15} />} 
                 AI Image
               </button>
+              {assets.length > 0 && (
+                <button className="chip" onClick={() => setShowAssetDrawer(true)}>
+                  <ImageIcon size={15} /> Library ({assets.length})
+                </button>
+              )}
             </div>
           </div>
 
@@ -649,6 +664,69 @@ export function MagicCreator({
               <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px' }}>
                 <button className="btn btn-accent" onClick={finalizeSchedule}>Confirm Schedule</button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Asset Library Drawer */}
+      {showAssetDrawer && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowAssetDrawer(false)}
+        >
+          <div
+            className="modal"
+            style={{ maxWidth: 600, maxHeight: "80vh", overflow: "auto" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2 className="modal-title">Asset Library</h2>
+              <button className="icon-btn" onClick={() => setShowAssetDrawer(false)}>
+                <XIcon size={18} />
+              </button>
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
+                gap: 12,
+                padding: "16px 0",
+              }}
+            >
+              {assets.map((asset) => (
+                <button
+                  key={asset.id}
+                  style={{
+                    background: "var(--bg-base)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 12,
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    padding: 0,
+                    transition: "border-color 0.2s",
+                  }}
+                  onClick={() => {
+                    setImage(asset.url);
+                    setOriginalImage(asset.url);
+                    bumpAssetUseCount(orgId, asset.id);
+                    setShowAssetDrawer(false);
+                    toast(`Using "${asset.name}" from library`);
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                  onMouseOut={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={asset.url}
+                    alt={asset.name}
+                    style={{ width: "100%", aspectRatio: "1", objectFit: "cover", display: "block" }}
+                  />
+                  <div style={{ padding: "6px 8px", fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {asset.name}
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         </div>
