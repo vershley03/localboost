@@ -10,11 +10,12 @@ import {
   PlugIcon,
   SparklesIcon,
   StarIcon,
+  TargetIcon,
   XIcon,
 } from "@/components/icons";
 import { PinSparkLogo } from "@/components/logo";
 
-export type TabId = "overview" | "creator" | "calendar" | "brand" | "reputation" | "integrations";
+export type TabId = "overview" | "creator" | "calendar" | "brand" | "reputation" | "competitor-watch" | "integrations";
 
 export const TABS: { id: TabId; label: string; icon: typeof HomeIcon }[] = [
   { id: "overview", label: "Overview", icon: HomeIcon },
@@ -22,6 +23,7 @@ export const TABS: { id: TabId; label: string; icon: typeof HomeIcon }[] = [
   { id: "calendar", label: "Calendar", icon: CalendarIcon },
   { id: "brand", label: "Brand DNA", icon: FingerprintIcon },
   { id: "reputation", label: "Reputation", icon: StarIcon },
+  { id: "competitor-watch", label: "Competitor Watch", icon: TargetIcon },
   { id: "integrations", label: "Integrations", icon: PlugIcon },
 ];
 

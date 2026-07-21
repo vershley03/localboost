@@ -321,3 +321,11 @@ export const FolderIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const TargetIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="1" />
+    <circle cx="12" cy="12" r="5" />
+    <circle cx="12" cy="12" r="9" />
+  </Icon>
+);
+

@@ -117,6 +117,7 @@ export function MagicCreator({
   brand,
   brandKit,
   assets,
+  initialPrompt,
   onSchedule,
   onGenerated,
 }: {
@@ -124,10 +125,11 @@ export function MagicCreator({
   brand: BrandProfile;
   brandKit: BrandKit;
   assets: BrandAsset[];
+  initialPrompt?: string;
   onSchedule: (post: ScheduledPost) => void;
   onGenerated: (count: number) => void;
 }) {
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(initialPrompt || "");
   const [selected, setSelected] = useState<Platform[]>(["instagram", "facebook"]);
   const [generating, setGenerating] = useState(false);
   const [generatingImage, setGeneratingImage] = useState(false);

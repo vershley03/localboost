@@ -46,6 +46,8 @@ model Business {
   aiGenerations      AIGeneration[]
   socialIntegrations SocialIntegration[]
   reviews            Review[]
+  competitors        Competitor[]
+  competitorInsights CompetitorInsight[]
 }
 
 model BrandProfile {
@@ -169,4 +171,62 @@ model ReviewResponse {
   updatedAt   DateTime @updatedAt
 
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+}
+
+model Competitor {
+  id              String   @id @default(cuid())
+  businessId      String
+  username        String // Instagram/social username
+  displayName     String?
+  followers       Int      @default(0)
+  postsPerWeek    Int      @default(0)
+  avgLikes        Int      @default(0)
+  avatarUrl       String?
+  lastFetched     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  business         Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  competitorPosts  CompetitorPost[]
+  competitorInsights CompetitorInsight[]
+
+  @@unique([businessId, username])
+  @@index([businessId])
+}
+
+model CompetitorPost {
+  id             String   @id @default(cuid())
+  competitorId   String
+  caption        String   @db.Text
+  imageUrl       String?
+  likeCount      Int      @default(0)
+  commentsCount  Int      @default(0)
+  timestamp      DateTime
+  type           String   @default("IMAGE") // IMAGE | VIDEO | CAROUSEL
+  hashtags       String[]
+  createdAt      DateTime @default(now())
+
+  competitor Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+
+  @@index([competitorId])
+}
+
+model CompetitorInsight {
+  id              String   @id @default(cuid())
+  competitorId    String?  // Can be null for insights not tied to specific competitor
+  businessId      String
+  type            String   // gap | timing | format | hashtag | spike
+  title           String   @db.Text
+  body            String   @db.Text
+  suggestedPrompt String   @db.Text
+  priority        String   @default("medium") // high | medium | low
+  status          String   @default("new") // new | dismissed | acted
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  competitor Competitor? @relation(fields: [competitorId], references: [id], onDelete: SetNull)
+  business   Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([competitorId])
 }

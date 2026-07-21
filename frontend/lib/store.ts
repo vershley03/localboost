@@ -233,7 +233,7 @@ export function deleteOrg(orgId: string) {
   saveOrgs(orgs);
 
   // Clean up namespaced data
-  for (const suffix of ["posts", "brand", "connections", "generations", "brand-kit", "assets", "reviews"]) {
+  for (const suffix of ["posts", "brand", "connections", "generations", "brand-kit", "assets", "reviews", "competitors", "competitor-posts", "insights"]) {
     remove(orgKey(orgId, suffix));
   }
 
@@ -561,4 +561,125 @@ export function buildImagePrompt(
   ];
 
   return parts.filter(Boolean).join(" ");
+}
+
+// ─── Competitor Watch ───────────────────────────────────────────────────────
+
+export interface TrackedCompetitor {
+  id: string;
+  orgId: string;
+  username: string; // without @
+  displayName?: string;
+  followers: number;
+  postsPerWeek: number;
+  avgLikes: number;
+  avatarUrl?: string;
+  lastFetched?: string;
+}
+
+export interface CompetitorPostLocal {
+  id: string;
+  competitorId: string;
+  caption: string;
+  imageUrl?: string;
+  likeCount: number;
+  commentsCount: number;
+  timestamp: string; // ISO
+  type: "IMAGE" | "VIDEO" | "CAROUSEL";
+  hashtags: string[];
+}
+
+export interface CompetitorInsight {
+  id: string;
+  type: "gap" | "timing" | "format" | "hashtag" | "spike";
+  title: string;
+  body: string;
+  competitors: string[]; // usernames
+  evidence: CompetitorPostLocal[];
+  suggestedPrompt: string;
+  priority: "high" | "medium" | "low";
+  status: "new" | "dismissed" | "acted";
+  createdAt: string; // ISO
+}
+
+export function getCompetitors(orgId: string): TrackedCompetitor[] {
+  return read<TrackedCompetitor[]>(orgKey(orgId, "competitors"), []);
+}
+
+export function saveCompetitors(orgId: string, competitors: TrackedCompetitor[]) {
+  write(orgKey(orgId, "competitors"), competitors);
+}
+
+export function addCompetitor(
+  orgId: string,
+  username: string,
+  displayName?: string,
+  avatarUrl?: string
+): TrackedCompetitor {
+  const normalized = username.replace(/^@/, "").toLowerCase();
+  const competitors = getCompetitors(orgId);
+
+  // Check if already exists
+  if (competitors.some((c) => c.username === normalized)) {
+    return competitors.find((c) => c.username === normalized)!;
+  }
+
+  const competitor: TrackedCompetitor = {
+    id: newId(),
+    orgId,
+    username: normalized,
+    displayName,
+    followers: 0,
+    postsPerWeek: 0,
+    avgLikes: 0,
+    avatarUrl,
+    lastFetched: new Date().toISOString(),
+  };
+
+  competitors.push(competitor);
+  saveCompetitors(orgId, competitors);
+  return competitor;
+}
+
+export function removeCompetitor(orgId: string, competitorId: string) {
+  const competitors = getCompetitors(orgId).filter((c) => c.id !== competitorId);
+  saveCompetitors(orgId, competitors);
+
+  // Also remove associated posts
+  const posts = getCompetitorPosts(orgId).filter((p) => p.competitorId !== competitorId);
+  saveCompetitorPosts(orgId, posts);
+}
+
+export function getCompetitorPosts(orgId: string): CompetitorPostLocal[] {
+  return read<CompetitorPostLocal[]>(orgKey(orgId, "competitor-posts"), []);
+}
+
+export function saveCompetitorPosts(orgId: string, posts: CompetitorPostLocal[]) {
+  write(orgKey(orgId, "competitor-posts"), posts);
+}
+
+export function getInsights(orgId: string): CompetitorInsight[] {
+  return read<CompetitorInsight[]>(orgKey(orgId, "insights"), []);
+}
+
+export function saveInsights(orgId: string, insights: CompetitorInsight[]) {
+  write(orgKey(orgId, "insights"), insights);
+}
+
+export function dismissInsight(orgId: string, insightId: string) {
+  const insights = getInsights(orgId);
+  const idx = insights.findIndex((i) => i.id === insightId);
+  if (idx >= 0) {
+    insights[idx].status = "dismissed";
+    saveInsights(orgId, insights);
+  }
+}
+
+export function actOnInsight(orgId: string, insightId: string) {
+  const insights = getInsights(orgId);
+  const idx = insights.findIndex((i) => i.id === insightId);
+  if (idx >= 0) {
+    insights[idx].status = "acted";
+    saveInsights(orgId, insights);
+  }
 }

@@ -8,6 +8,7 @@ import { MagicCreator } from "@/components/dashboard/magic-creator";
 import { CalendarView } from "@/components/dashboard/calendar-view";
 import { BrandProfileView } from "@/components/dashboard/brand-profile";
 import { Reputation } from "@/components/dashboard/reputation";
+import { CompetitorWatch } from "@/components/dashboard/competitor-watch";
 import { Integrations } from "@/components/dashboard/integrations";
 import { OrgModal } from "@/components/dashboard/org-switcher";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
@@ -29,12 +30,19 @@ import {
   ensureMigrated,
   getOrgs,
   createOrg,
+  getCompetitors,
+  saveCompetitors,
+  getInsights,
+  saveInsights,
+  actOnInsight,
   type BrandProfile,
   type BrandKit,
   type BrandAsset,
   type Connections,
   type ScheduledPost,
   type Org,
+  type TrackedCompetitor,
+  type CompetitorInsight,
   DEFAULT_BRAND_KIT,
 } from "@/lib/store";
 
@@ -58,6 +66,9 @@ function DashboardInner() {
   });
   const [generationCount, setGenerationCount] = useState(0);
   const [userName, setUserName] = useState<string>("Sarah");
+  const [competitors, setCompetitors] = useState<TrackedCompetitor[]>([]);
+  const [insights, setInsights] = useState<CompetitorInsight[]>([]);
+  const [initialPrompt, setInitialPrompt] = useState<string | null>(null);
   const toast = useToast();
 
   useEffect(() => {
@@ -85,6 +96,8 @@ function DashboardInner() {
     setAssets(getAssets(orgId));
     setConnections(getConnections(orgId));
     setGenerationCount(getGenerationCount(orgId));
+    setCompetitors(getCompetitors(orgId));
+    setInsights(getInsights(orgId));
   };
 
   useEffect(() => {
@@ -143,9 +156,25 @@ function DashboardInner() {
     saveConnections(activeOrgId, next);
   };
 
+  const updateCompetitors = (next: TrackedCompetitor[]) => {
+    setCompetitors(next);
+    saveCompetitors(activeOrgId, next);
+  };
+
+  const updateInsights = (next: CompetitorInsight[]) => {
+    setInsights(next);
+    saveInsights(activeOrgId, next);
+  };
+
+  const handleNavigateToCreator = (prompt: string) => {
+    setInitialPrompt(prompt);
+    setActiveTab("creator");
+  };
+
   const handleSwitchOrg = (id: string) => {
     setActiveOrgId(id);
     loadOrgData(id);
+    setInitialPrompt(null); // Clear any pending prompt
     // Persist active org id implicitly handled in the store, but we might want to call setActiveOrgId there too.
     // Wait, the store handles saving it in createOrg/ensureMigrated, but we should probably expose setActiveOrgId from store.
     // Let's just rely on loadOrgData fetching the correct namespace, but for now let's also update localStorage
@@ -212,7 +241,11 @@ function DashboardInner() {
                   brand={brand}
                   brandKit={brandKit}
                   assets={assets}
-                  onSchedule={(post) => updatePosts([...posts, post])}
+                  initialPrompt={initialPrompt || undefined}
+                  onSchedule={(post) => {
+                    updatePosts([...posts, post]);
+                    setInitialPrompt(null);
+                  }}
                   onGenerated={setGenerationCount}
                 />
               )}
@@ -241,6 +274,18 @@ function DashboardInner() {
               )}
               {activeTab === "reputation" && (
                 <Reputation brand={brand} orgId={activeOrgId} />
+              )}
+              {activeTab === "competitor-watch" && (
+                <CompetitorWatch
+                  orgId={activeOrgId}
+                  businessName={brand.businessName}
+                  competitors={competitors}
+                  insights={insights}
+                  competitorPosts={[]}
+                  onUpdateCompetitors={updateCompetitors}
+                  onUpdateInsights={updateInsights}
+                  onNavigateToCreator={handleNavigateToCreator}
+                />
               )}
               {activeTab === "integrations" && (
                 <Integrations connections={connections} onChange={updateConnections} />
