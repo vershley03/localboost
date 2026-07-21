@@ -414,7 +414,7 @@ export function Reputation({
                       <SparklesIcon size={16} /> AI Draft
                     </div>
                     <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
-                      Click a tone below or the "Generate AI Response" button to create a draft.
+                      Click a tone below or the &quot;Generate AI Response&quot; button to create a draft.
                     </p>
                     <div className="rep-tone-chips">
                       {TONE_MODIFIERS.map((tone) => (
@@ -490,7 +490,7 @@ export function Reputation({
                     style={{ minHeight: 140 }}
                   />
                   <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 8 }}>
-                    You can edit your response. Click "Update Reply" to save changes.
+                      You can edit your response. Click &quot;Update Reply&quot; to save changes.
                   </p>
                 </div>
               )}
