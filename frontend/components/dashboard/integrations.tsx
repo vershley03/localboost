@@ -113,7 +113,7 @@ export function Integrations({
           const connected = connections[provider.id];
           const ProviderIcon = provider.icon;
           return (
-            <div key={provider.id} className={`integ-card ${connected ? "connected" : ""}`}>
+            <div key={provider.id} className={`integ-card ${connected ? "connected" : ""}`} style={{ position: "relative" }}>
               {/* Sandbox Badge */}
               {provider.isSandbox && (
                 <div
@@ -128,6 +128,7 @@ export function Integrations({
                     fontSize: 11,
                     fontWeight: 600,
                     border: "1px solid #FFEAA7",
+                    zIndex: 10,
                   }}
                   title="This uses a sandboxed mock OAuth flow. Real credentials will be enabled after app approval."
                 >
