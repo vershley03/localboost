@@ -101,16 +101,19 @@ export function CompetitorWatch({
   const activeInsights = filteredInsights.filter((i) => i.status === "new");
 
   return (
-    <div className="competitor-watch-container">
+    <div>
       {/* Header */}
-      <div style={{ marginBottom: "32px" }}>
-        <h1 style={{ fontSize: "28px", fontWeight: "700", marginBottom: "8px" }}>
-          Competitor Watch
-        </h1>
-        <p style={{ color: "var(--text-secondary)", fontSize: "14px" }}>
-          Track up to 3 competitors and get AI-powered insights
-        </p>
-      </div>
+      <header className="app-page-header">
+        <div>
+          <h1 className="app-page-title">Competitor Watch</h1>
+          <p className="app-page-subtitle">
+            Track up to 3 competitors and get AI-powered insights
+          </p>
+        </div>
+        <button className="btn btn-accent" onClick={handleLoadDemoData}>
+          Load Demo Data
+        </button>
+      </header>
 
       {/* Competitor Input */}
       <div style={{ marginBottom: "32px" }}>
@@ -118,7 +121,7 @@ export function CompetitorWatch({
           competitors={competitors}
           onAdd={handleAddCompetitor}
           onRemove={handleRemoveCompetitor}
-          onLoadDemoData={handleLoadDemoData}
+          onLoadDemoData={() => {}} {/* handled in header */}
           maxCompetitors={3}
         />
       </div>
@@ -143,14 +146,14 @@ export function CompetitorWatch({
       {competitors.length > 0 && (
         <>
           {/* Share of Voice */}
-          <div style={{ marginBottom: "32px", background: "var(--bg-secondary)", padding: "16px", borderRadius: "8px" }}>
+          <section className="card card-lg" style={{ marginBottom: 24 }}>
             <ShareOfVoice
               competitors={competitors}
               allPosts={competitorPosts}
               businessName={businessName}
               yourAvgLikes={45}
             />
-          </div>
+          </section>
 
           {/* Competitor Cards */}
           <div style={{ marginBottom: "32px" }}>
