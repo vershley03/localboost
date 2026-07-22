@@ -24,21 +24,22 @@ export function CompetitorCard({ competitor, posts, onExpand }: CompetitorCardPr
             <img
               src={competitor.avatarUrl}
               alt={competitor.username}
-              style={{ width: "48px", height: "48px", borderRadius: "50%" }}
+              style={{ width: "48px", height: "48px", borderRadius: "14px", objectFit: "cover" }}
             />
           ) : (
             <div
               style={{
                 width: "48px",
                 height: "48px",
-                borderRadius: "50%",
-                background: "var(--accent)",
+                borderRadius: "14px",
+                background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontWeight: "bold",
+                fontWeight: 800,
                 color: "white",
                 fontSize: "20px",
+                boxShadow: "0 2px 8px var(--accent-glow)",
               }}
             >
               {competitor.username[0].toUpperCase()}
@@ -50,7 +51,7 @@ export function CompetitorCard({ competitor, posts, onExpand }: CompetitorCardPr
           <div className="competitor-username">
             @{competitor.username}
           </div>
-          <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+          <div style={{ fontSize: "13px", color: "var(--text-muted)", fontWeight: 500 }}>
             {competitor.followers.toLocaleString()} followers
           </div>
         </div>
@@ -80,7 +81,7 @@ export function CompetitorCard({ competitor, posts, onExpand }: CompetitorCardPr
       {/* Recent posts grid */}
       {recentPosts.length > 0 && (
         <div className="competitor-card-posts">
-          <div style={{ fontSize: "11px", fontWeight: "600", color: "var(--text-faint)", marginBottom: "8px" }}>
+          <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-faint)", marginBottom: "10px", letterSpacing: "0.06em" }}>
             RECENT POSTS
           </div>
           <div className="competitor-posts-grid">

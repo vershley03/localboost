@@ -28,11 +28,11 @@ export function ShareOfVoice({
 
   return (
     <div className="share-of-voice">
-      <div style={{ marginBottom: "16px" }}>
-        <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "8px" }}>
+      <div style={{ marginBottom: "20px" }}>
+        <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "8px", color: "var(--text-primary)" }}>
           Share of Voice (Avg Engagement)
         </h3>
-        <p style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+        <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>
           Based on recent competitor posts
         </p>
       </div>
@@ -89,13 +89,14 @@ export function ShareOfVoice({
       {topCompetitor && topCompetitor.avgLikes > yourAvgLikes * 1.2 && (
         <div
           style={{
-            marginTop: "16px",
-            padding: "12px",
-            background: "var(--bg-secondary)",
-            borderRadius: "4px",
-            fontSize: "12px",
-            lineHeight: "1.5",
-            color: "var(--text-secondary)",
+            marginTop: "20px",
+            padding: "16px",
+            background: "var(--accent-subtle)",
+            borderRadius: "12px",
+            fontSize: "13px",
+            lineHeight: "1.6",
+            color: "var(--text-muted)",
+            border: "1px solid var(--border)",
           }}
         >
           <strong>💡 Insight:</strong> @{topCompetitor.username} is getting{" "}

@@ -62,13 +62,18 @@ export function InsightCard({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "6px",
+            gap: "8px",
             fontSize: "11px",
             color: "var(--text-faint)",
-            fontWeight: "600",
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            padding: "4px 10px",
+            background: "var(--bg-base)",
+            borderRadius: "8px",
           }}
         >
-          <span style={{ textTransform: "uppercase" }}>{insight.priority}</span>
+          <span>{insight.priority}</span>
         </div>
       </div>
 
@@ -78,7 +83,7 @@ export function InsightCard({
       {/* Evidence carousel */}
       {insight.evidence.length > 0 && (
         <div className="insight-evidence">
-          <div style={{ fontSize: "11px", fontWeight: "600", color: "var(--text-faint)", marginBottom: "8px" }}>
+          <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-faint)", marginBottom: "10px", letterSpacing: "0.06em" }}>
             EVIDENCE ({currentEvidenceIdx + 1}/{insight.evidence.length})
           </div>
           <div className="evidence-carousel">
@@ -97,7 +102,7 @@ export function InsightCard({
                 <img
                   src={currentEvidence.imageUrl}
                   alt="post evidence"
-                  style={{ width: "100%", height: "120px", objectFit: "cover", borderRadius: "4px", marginBottom: "8px" }}
+                  style={{ width: "100%", height: "120px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }}
                 />
               )}
               <div className="evidence-caption">

@@ -121,25 +121,21 @@ export function CompetitorWatch({
           competitors={competitors}
           onAdd={handleAddCompetitor}
           onRemove={handleRemoveCompetitor}
-          onLoadDemoData={() => {}} {/* handled in header */}
+          onLoadDemoData={() => {/* handled in header */}}
           maxCompetitors={3}
         />
       </div>
 
       {/* Empty state */}
       {competitors.length === 0 && (
-        <div
-          style={{
-            textAlign: "center",
-            padding: "64px 24px",
-            color: "var(--text-secondary)",
-          }}
-        >
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>📊</div>
-          <h2 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "8px" }}>
+        <div className="card card-lg" style={{ textAlign: "center", padding: "64px 32px" }}>
+          <div style={{ fontSize: "56px", marginBottom: "20px" }}>📊</div>
+          <h2 className="card-title" style={{ marginBottom: "8px" }}>
             No competitors yet
           </h2>
-          <p>Add up to 3 Instagram handles to start tracking competitor activity.</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "15px", maxWidth: "400px", margin: "0 auto" }}>
+            Add up to 3 Instagram handles to start tracking competitor activity and get AI-powered insights.
+          </p>
         </div>
       )}
 
@@ -157,7 +153,7 @@ export function CompetitorWatch({
 
           {/* Competitor Cards */}
           <div style={{ marginBottom: "32px" }}>
-            <h2 style={{ fontSize: "16px", fontWeight: "600", marginBottom: "16px" }}>
+            <h2 className="card-title" style={{ marginBottom: "20px" }}>
               Tracked Competitors
             </h2>
             <div className="competitors-grid">
@@ -177,39 +173,23 @@ export function CompetitorWatch({
           {/* Insights Section */}
           {insights.length > 0 && (
             <div>
-              <h2 style={{ fontSize: "16px", fontWeight: "600", marginBottom: "16px" }}>
+              <h2 className="card-title" style={{ marginBottom: "20px" }}>
                 AI Insights ({activeInsights.length} new)
               </h2>
 
               {/* Filter pills */}
-              <div className="insight-filters" style={{ marginBottom: "16px" }}>
+              <div className="insight-filters" style={{ marginBottom: "20px" }}>
                 {(["all", "gaps", "trending", "timing"] as InsightFilter[]).map(
                   (filter) => (
                     <button
                       key={filter}
                       onClick={() => setInsightFilter(filter)}
                       className={`filter-pill ${insightFilter === filter ? "active" : ""}`}
-                      style={{
-                        padding: "6px 12px",
-                        borderRadius: "20px",
-                        border: "1px solid var(--border)",
-                        background:
-                          insightFilter === filter
-                            ? "var(--accent)"
-                            : "transparent",
-                        color:
-                          insightFilter === filter
-                            ? "white"
-                            : "var(--text-primary)",
-                        cursor: "pointer",
-                        fontSize: "12px",
-                        fontWeight: "500",
-                      }}
                     >
                       {filter === "all" && "All"}
-                      {filter === "gaps" && "Gaps"}
-                      {filter === "trending" && "Trending"}
-                      {filter === "timing" && "Timing"}
+                      {filter === "gaps" && "🔥 Gaps"}
+                      {filter === "trending" && "📈 Trending"}
+                      {filter === "timing" && "⏰ Timing"}
                     </button>
                   )
                 )}
