@@ -119,6 +119,13 @@ function PostDetailDrawer({
     toast("Post updated");
   };
 
+  const handleSchedule = () => {
+    const scheduledTime = editTime || post.time || "17:00";
+    onEdit(post.id, { status: "scheduled", time: scheduledTime });
+    setEditTime(scheduledTime);
+    toast("Post scheduled");
+  };
+
   return (
     <>
       <div className="rep-drawer-overlay" onClick={onClose} />
@@ -202,6 +209,11 @@ function PostDetailDrawer({
 
         {/* Footer Actions */}
         <div className="rep-drawer-footer" style={{ display: "flex", gap: 10 }}>
+          {post.status === "draft" && !editing && (
+            <button className="btn btn-accent" style={{ flex: 1 }} onClick={handleSchedule}>
+              <SendIcon size={14} /> Schedule post
+            </button>
+          )}
           {!editing && (
             <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setEditing(true)}>
               Edit Post
