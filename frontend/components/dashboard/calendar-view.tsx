@@ -82,6 +82,15 @@ function buildWeek(year: number, month: number, day: number): DayCell[] {
   return cells;
 }
 
+function isPastSchedule(dateKey: string, timeValue?: string): boolean {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  if (!year || !month || !day) return false;
+
+  const [hours, minutes] = (timeValue || "00:00").split(":").map(Number);
+  const scheduledAt = new Date(year, month - 1, day, Number.isFinite(hours) ? hours : 0, Number.isFinite(minutes) ? minutes : 0, 0, 0);
+  return scheduledAt.getTime() < Date.now();
+}
+
 function PostDetailDrawer({
   post,
   onClose,
@@ -114,6 +123,12 @@ function PostDetailDrawer({
   })();
 
   const handleSave = () => {
+    const nextTime = editTime || undefined;
+    const nextStatus = post.status;
+    if (nextStatus === "scheduled" && isPastSchedule(post.date, nextTime || post.time)) {
+      toast("Cannot schedule in the past", "error");
+      return;
+    }
     onEdit(post.id, { caption: editCaption, time: editTime || undefined });
     setEditing(false);
     toast("Post updated");
@@ -121,6 +136,10 @@ function PostDetailDrawer({
 
   const handleSchedule = () => {
     const scheduledTime = editTime || post.time || "17:00";
+    if (isPastSchedule(post.date, scheduledTime)) {
+      toast("Choose a future date/time to schedule", "error");
+      return;
+    }
     onEdit(post.id, { status: "scheduled", time: scheduledTime });
     setEditTime(scheduledTime);
     toast("Post scheduled");
@@ -208,38 +227,40 @@ function PostDetailDrawer({
         </div>
 
         {/* Footer Actions */}
-        <div className="rep-drawer-footer" style={{ display: "flex", gap: 10 }}>
+        <div className="rep-drawer-footer" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {post.status === "draft" && !editing && (
-            <button className="btn btn-accent" style={{ flex: 1 }} onClick={handleSchedule}>
+            <button className="btn btn-accent" style={{ width: "100%" }} onClick={handleSchedule}>
               <SendIcon size={14} /> Schedule post
             </button>
           )}
-          {!editing && (
-            <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setEditing(true)}>
-              Edit Post
-            </button>
-          )}
-          {post.caption && (
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {!editing && (
+              <button className="btn btn-outline" style={{ flex: "1 1 140px" }} onClick={() => setEditing(true)}>
+                Edit Post
+              </button>
+            )}
+            {post.caption && (
+              <button
+                className="btn btn-outline"
+                style={{ flex: "1 1 120px" }}
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(post.caption);
+                    toast("Caption copied");
+                  } catch { toast("Couldn't copy", "error"); }
+                }}
+              >
+                <CopyIcon size={16} /> Copy
+              </button>
+            )}
             <button
               className="btn btn-outline"
-              style={{ flex: editing ? 1 : 0 }}
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(post.caption);
-                  toast("Caption copied");
-                } catch { toast("Couldn't copy", "error"); }
-              }}
+              style={{ flex: "1 1 140px", color: "#EA4335", borderColor: "rgba(234, 67, 53, 0.3)" }}
+              onClick={() => { onRemove(post.id); onClose(); }}
             >
-              <CopyIcon size={16} /> Copy
+              <XIcon size={14} /> Remove
             </button>
-          )}
-          <button
-            className="btn btn-outline"
-            style={{ flex: 1, color: "#EA4335", borderColor: "rgba(234, 67, 53, 0.3)" }}
-            onClick={() => { onRemove(post.id); onClose(); }}
-          >
-            <XIcon size={14} /> Remove
-          </button>
+          </div>
         </div>
       </div>
     </>
@@ -352,7 +373,13 @@ export function CalendarView({
   const handleDrop = (e: React.DragEvent, targetDateKey: string) => {
     e.preventDefault();
     const postId = e.dataTransfer.getData("postId");
-    if (postId && onEdit) {
+    const post = posts.find((p) => p.id === postId);
+    if (postId && post && onEdit) {
+      const nextTime = post.time || "17:00";
+      if (post.status === "scheduled" && isPastSchedule(targetDateKey, nextTime)) {
+        toast("Cannot reschedule to a past time", "error");
+        return;
+      }
       onEdit(postId, { date: targetDateKey });
       toast("Post rescheduled");
     }
