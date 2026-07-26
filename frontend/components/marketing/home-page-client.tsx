@@ -79,10 +79,9 @@ export function HomePageClient({ isSignedIn }: { isSignedIn: boolean }) {
 
   return (
     <>
-      <div className="mesh-bg">
-        <div className="mesh-blob blue" />
-        <div className="mesh-blob coral" />
-        <div className="mesh-blob sage" />
+      <div className="page-backdrop" aria-hidden="true">
+        <div className="page-grid" />
+        <div className="page-glow" />
       </div>
 
       <nav className="navbar">
@@ -172,48 +171,36 @@ export function HomePageClient({ isSignedIn }: { isSignedIn: boolean }) {
       </div>
 
       <section className="hero">
-        <div className="floating-metric left">
-          <div className="metric-icon coral">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          </div>
-          <div className="metric-text">
-            <div className="metric-value">3x</div>
-            <div className="metric-label">Engagement</div>
-          </div>
-        </div>
-
-        <div className="floating-metric right">
-          <div className="metric-icon sage">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          </div>
-          <div className="metric-text">
-            <div className="metric-value">+42%</div>
-            <div className="metric-label">More Walk-ins</div>
-          </div>
-        </div>
-
         <div className="hero-badge">
-          <span className="hero-badge-tag">New</span>
-          Your AI Marketing Assistant is here
+          <span className="hero-badge-dot" aria-hidden="true" />
+          Your AI marketing team, on autopilot
         </div>
 
         <h1 className="hero-title">
-          Grow your local business,<br />
-          <span className="gradient-text">effortlessly.</span>
+          Marketing that runs itself for your <span className="hero-accent">local business.</span>
         </h1>
 
         <p className="hero-subtitle">
-          PinSpark acts like a full-time marketing agency for your business.
-          Generate beautiful social posts, ads, and local campaigns in seconds.
+          PinSpark works like a full-time marketing agency — generating on-brand social posts,
+          ads, and local campaigns in seconds, so you can get back to running your business.
         </p>
 
         <div className="hero-actions">
           <Link href={isSignedIn ? "/dashboard" : "/sign-up"} className="btn btn-primary btn-lg">
-            {isSignedIn ? "Open dashboard" : "Get started for free"}
+            {isSignedIn ? "Open dashboard" : "Start free"}
           </Link>
-          <a href="#features" className="btn btn-outline btn-lg">
+          <a href="#how-it-works" className="btn btn-outline btn-lg">
             See how it works
           </a>
+        </div>
+
+        <div className="hero-proof">
+          <span>Trusted by local cafés, salons &amp; studios</span>
+          <div className="hero-proof-stats">
+            <div><strong>3&times;</strong> engagement</div>
+            <div><strong>+42%</strong> more walk-ins</div>
+            <div><strong>10 hrs</strong> saved weekly</div>
+          </div>
         </div>
 
         <div className="dashboard-preview">
@@ -341,9 +328,9 @@ export function HomePageClient({ isSignedIn }: { isSignedIn: boolean }) {
                     <h2 style={{ fontSize: "20px", fontWeight: 800 }}>Brand DNA</h2>
                     <p style={{ color: "var(--text-muted)", marginTop: "8px", maxWidth: "300px" }}>Your business profile and AI tone settings are configured here.</p>
                     <div style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
-                      <span className="hero-badge-tag">Friendly Tone</span>
-                      <span className="hero-badge-tag">Coffee Shop</span>
-                      <span className="hero-badge-tag">Local Audience</span>
+                      <span className="preview-chip">Friendly Tone</span>
+                      <span className="preview-chip">Coffee Shop</span>
+                      <span className="preview-chip">Local Audience</span>
                     </div>
                   </div>
                 )}
@@ -421,7 +408,7 @@ export function HomePageClient({ isSignedIn }: { isSignedIn: boolean }) {
       <section className="section section-full" id="how-it-works" style={{ background: "var(--bg-surface)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
         <div className="section-full-inner">
           <div className="section-header">
-            <div className="section-label" style={{ background: "rgba(16, 185, 129, 0.1)", color: "var(--sage)" }}>Process</div>
+            <div className="section-label">Process</div>
             <h2 className="section-title">Three steps to growth.</h2>
           </div>
 

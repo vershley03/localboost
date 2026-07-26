@@ -8,10 +8,9 @@ export default async function PricingPage() {
 
   return (
     <div className="pricing-page">
-      <div className="mesh-bg">
-        <div className="mesh-blob blue" />
-        <div className="mesh-blob coral" />
-        <div className="mesh-blob sage" />
+      <div className="page-backdrop" aria-hidden="true">
+        <div className="page-grid" />
+        <div className="page-glow" />
       </div>
 
       <nav className="pricing-page-nav">
