@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/toast";
+import { LoaderIcon, SparklesIcon } from "@/components/icons";
 import { CompetitorInput } from "./competitor-input";
 import { CompetitorCard } from "./competitor-card";
 import { InsightCard } from "./insight-card";
@@ -42,6 +43,7 @@ export function CompetitorWatch({
   onNavigateToCreator,
 }: CompetitorWatchProps) {
   const [insightFilter, setInsightFilter] = useState<InsightFilter>("all");
+  const [isLoadingDemo, setIsLoadingDemo] = useState(false);
   const toast = useToast();
 
   const handleAddCompetitor = (username: string) => {
@@ -58,6 +60,8 @@ export function CompetitorWatch({
   };
 
   const handleLoadDemoData = () => {
+    if (isLoadingDemo) return;
+    setIsLoadingDemo(true);
     // Load mock competitors and generate insights
     const mockCompetitors = MOCK_COMPETITORS.map((c) => ({
       ...c,
@@ -70,6 +74,7 @@ export function CompetitorWatch({
     onUpdateCompetitors(mockCompetitors);
     onUpdateInsights(mockInsightsList);
     toast("Demo data loaded — 3 competitors with insights");
+    setIsLoadingDemo(false);
   };
 
   const handleGenerateMine = (insight: CompetitorInsight) => {
@@ -110,8 +115,9 @@ export function CompetitorWatch({
             Track up to 3 competitors and get AI-powered insights
           </p>
         </div>
-        <button className="btn btn-accent" onClick={handleLoadDemoData}>
-          Load Demo Data
+        <button className="btn btn-accent" onClick={handleLoadDemoData} disabled={isLoadingDemo}>
+          {isLoadingDemo ? <LoaderIcon size={14} className="spin" /> : <SparklesIcon size={14} />}
+          {isLoadingDemo ? "Loading..." : "Load Demo Data"}
         </button>
       </header>
 
@@ -136,6 +142,15 @@ export function CompetitorWatch({
           <p style={{ color: "var(--text-muted)", fontSize: "15px", maxWidth: "400px", margin: "0 auto" }}>
             Add up to 3 Instagram handles to start tracking competitor activity and get AI-powered insights.
           </p>
+          <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 24, flexWrap: "wrap" }}>
+            <button className="btn btn-accent" onClick={handleLoadDemoData} disabled={isLoadingDemo}>
+              {isLoadingDemo ? <LoaderIcon size={14} className="spin" /> : <SparklesIcon size={14} />}
+              {isLoadingDemo ? "Loading Demo..." : "Try Demo Competitors"}
+            </button>
+            <button className="btn btn-outline" onClick={() => document.getElementById("competitor-input")?.focus()}>
+              Add First Competitor
+            </button>
+          </div>
         </div>
       )}
 

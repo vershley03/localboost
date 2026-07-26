@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type Org } from "@/lib/store";
-import { CheckIcon, PlusIcon, XIcon, BuildingIcon } from "@/components/icons";
+import { CheckIcon, PlusIcon, XIcon, BuildingIcon, LoaderIcon } from "@/components/icons";
 
 export function OrgSwitcher({
   orgs,
@@ -87,28 +87,82 @@ export function OrgModal({
 }) {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("Coffee Shop");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    const selector =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const focusables = Array.from(modal.querySelectorAll<HTMLElement>(selector)).filter(
+      (el) => !el.hasAttribute("disabled")
+    );
+    (focusables[0] ?? modal).focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (e.key !== "Tab") return;
+
+      const nodes = Array.from(modal.querySelectorAll<HTMLElement>(selector)).filter(
+        (el) => !el.hasAttribute("disabled")
+      );
+      if (nodes.length === 0) return;
+
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (!active || !modal.contains(active)) {
+        e.preventDefault();
+        first.focus();
+        return;
+      }
+
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
-    onSubmit(name.trim(), category);
+    if (!name.trim() || isSubmitting) return;
+    setIsSubmitting(true);
+    await Promise.resolve(onSubmit(name.trim(), category));
     setName("");
     setCategory("Coffee Shop");
+    setIsSubmitting(false);
   };
 
   return (
     <div className="org-modal-overlay">
       <div className="org-modal-backdrop" onClick={onClose} />
-      <div className="org-modal-content bento-card reveal active">
+      <div ref={modalRef} className="org-modal-content bento-card reveal active" role="dialog" aria-modal="true" aria-labelledby="org-modal-title" tabIndex={-1}>
         <button className="org-modal-close" onClick={onClose}>
           <XIcon size={20} />
         </button>
         <div className="bento-icon-wrapper blue" style={{ marginBottom: 16 }}>
           <BuildingIcon size={24} />
         </div>
-        <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>New Organization</h2>
+        <h2 id="org-modal-title" style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>New Organization</h2>
         <p style={{ color: "var(--text-muted)", fontSize: 14, marginBottom: 24 }}>
           Create a new workspace for another business. Each organization has its own brand profile, posts, and integrations.
         </p>
@@ -117,16 +171,15 @@ export function OrgModal({
           <div className="form-group">
             <label className="form-label">Business Name</label>
             <input 
-              className="form-input" 
+              className="input" 
               value={name} 
               onChange={e => setName(e.target.value)} 
               placeholder="e.g. The Second Grind"
-              autoFocus
             />
           </div>
           <div className="form-group">
             <label className="form-label">Category</label>
-            <select className="form-select" value={category} onChange={e => setCategory(e.target.value)}>
+            <select className="select" value={category} onChange={e => setCategory(e.target.value)}>
               <option>Coffee Shop</option>
               <option>Restaurant</option>
               <option>Bakery</option>
@@ -137,8 +190,11 @@ export function OrgModal({
             </select>
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 16 }}>
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-accent" disabled={!name.trim()}>Create Workspace</button>
+            <button type="button" className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>Cancel</button>
+            <button type="submit" className="btn btn-accent" disabled={!name.trim() || isSubmitting}>
+              {isSubmitting ? <LoaderIcon size={14} className="spin" /> : null}
+              {isSubmitting ? "Creating..." : "Create Workspace"}
+            </button>
           </div>
         </form>
       </div>

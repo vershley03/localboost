@@ -115,6 +115,7 @@ export function MobileNav({
   onCreateOrg: () => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const activeTab = TABS.find((tab) => tab.id === active);
 
   useEffect(() => {
     const handleResize = () => {
@@ -149,6 +150,11 @@ export function MobileNav({
           <Link href="/" className="app-sidebar-logo" style={{ margin: 0, padding: 0 }}>
             <Logo iconSize={28} />
           </Link>
+          {!menuOpen && activeTab && (
+            <span className="app-topbar-active-tab" aria-live="polite">
+              {activeTab.label}
+            </span>
+          )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <ThemeToggle />

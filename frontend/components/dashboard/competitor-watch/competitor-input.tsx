@@ -74,6 +74,7 @@ export function CompetitorInput({
         <div className="competitor-input-field">
           <span className="input-prefix">@</span>
           <input
+            id="competitor-input"
             type="text"
             placeholder="instagram_handle"
             value={input}

@@ -1334,6 +1334,23 @@ body {
   color: var(--text-primary);
 }
 
+.app-topbar-active-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-base);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .app-mobile-nav-utilities {
   display: grid;
   gap: 12px;
@@ -1729,6 +1746,7 @@ body {
   gap: 4px;
   border-top: none;
   border-left: none;
+  position: relative;
 }
 
 .calendar-day:nth-child(7n) { border-right: none; }
@@ -1736,6 +1754,24 @@ body {
 .calendar-day:hover {
   background: var(--bg-base);
   box-shadow: inset 0 0 0 2px var(--accent-subtle);
+}
+
+.calendar-day.no-posts::after {
+  content: "Click to draft";
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.calendar-day.no-posts:hover::after {
+  opacity: 0.95;
+  transform: translateY(0);
 }
 
 .calendar-day.has-posts {
@@ -1825,10 +1861,41 @@ body {
 }
 
 .calendar-event-more {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-faint);
-  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent);
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: var(--accent-subtle);
+  border: 1px dashed rgba(2, 132, 199, 0.35);
+  transition: all 0.15s ease;
+}
+
+.calendar-event-more:hover {
+  background: rgba(2, 132, 199, 0.15);
+  transform: translateY(-1px);
+}
+
+.calendar-empty-state {
+  text-align: center;
+  padding: 48px 28px;
+  border: 1px dashed var(--border-hover);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.06), rgba(255, 255, 255, 0.9));
+}
+
+.calendar-empty-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.calendar-empty-copy {
+  color: var(--text-muted);
+  font-size: 14px;
+  max-width: 420px;
+  margin: 0 auto 18px;
 }
 
 /* Post detail drawer extras */
@@ -2238,12 +2305,11 @@ body {
 /* ===== TOASTS ===== */
 .toast-stack {
   position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 24px;
+  right: 24px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   gap: 10px;
   z-index: 2000;
   pointer-events: none;
@@ -2261,6 +2327,7 @@ body {
   border-radius: 100px;
   box-shadow: var(--shadow-xl);
   animation: fadeInUp 0.3s ease both;
+  max-width: min(420px, calc(100vw - 32px));
 }
 
 .toast-icon {
@@ -2616,6 +2683,17 @@ body {
   }
 
   .calendar-day { min-height: 72px; }
+
+  .calendar-day.no-posts::after {
+    display: none;
+  }
+
+  .toast-stack {
+    top: 14px;
+    right: 50%;
+    transform: translateX(50%);
+    align-items: center;
+  }
 }
 
 @media (min-width: 901px) {

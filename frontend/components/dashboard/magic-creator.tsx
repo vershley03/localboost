@@ -437,7 +437,7 @@ export function MagicCreator({
                 <label style={{ display: "block", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700, color: "var(--text-faint)", marginBottom: 8 }}>
                   Brand Tone
                 </label>
-                <select className="form-select" style={{ width: "100%", fontSize: 14 }} value={tone} onChange={e => setTone(e.target.value)}>
+                <select className="select" style={{ width: "100%", fontSize: 14 }} value={tone} onChange={e => setTone(e.target.value)}>
                   <option value="Professional">Professional</option>
                   <option value="Casual & Friendly">Casual & Friendly</option>
                   <option value="Witty & Humorous">Witty & Humorous</option>
@@ -450,7 +450,7 @@ export function MagicCreator({
                   Target Audience
                 </label>
                 <textarea 
-                  className="form-input" 
+                  className="input" 
                   style={{ width: "100%", fontSize: 14, resize: "none", height: "42px", paddingTop: "10px" }} 
                   value={audience} 
                   onChange={e => setAudience(e.target.value)} 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -12,6 +12,8 @@ import {
   SendIcon,
   CopyIcon,
   SparklesIcon,
+  PlusIcon,
+  LoaderIcon,
 } from "@/components/icons";
 import { useToast } from "@/components/toast";
 import {
@@ -291,6 +293,10 @@ export function CalendarView({
   const [platform, setPlatform] = useState<Platform>("instagram");
   const [selectedPost, setSelectedPost] = useState<ScheduledPost | null>(null);
   const [dailyModalDate, setDailyModalDate] = useState<string | null>(null);
+  const [isAddingDraft, setIsAddingDraft] = useState(false);
+
+  const composeModalRef = useRef<HTMLDivElement>(null);
+  const dailyModalRef = useRef<HTMLDivElement>(null);
   
   const toast = useToast();
 
@@ -334,6 +340,7 @@ export function CalendarView({
 
   const submit = () => {
     if (!composing || title.trim().length < 3) return;
+    setIsAddingDraft(true);
     onAdd({
       id: newId(),
       date: composing,
@@ -348,7 +355,108 @@ export function CalendarView({
     setTitle("");
     setCaption("");
     setTime("17:00");
+    setIsAddingDraft(false);
   };
+
+  useEffect(() => {
+    if (!composing) return;
+
+    const modal = composeModalRef.current;
+    if (!modal) return;
+
+    const selector =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const focusables = Array.from(modal.querySelectorAll<HTMLElement>(selector)).filter(
+      (el) => !el.hasAttribute("disabled")
+    );
+    (focusables[0] ?? modal).focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setComposing(null);
+        return;
+      }
+
+      if (e.key !== "Tab") return;
+
+      const nodes = Array.from(modal.querySelectorAll<HTMLElement>(selector)).filter(
+        (el) => !el.hasAttribute("disabled")
+      );
+      if (nodes.length === 0) return;
+
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (!active || !modal.contains(active)) {
+        e.preventDefault();
+        first.focus();
+        return;
+      }
+
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [composing]);
+
+  useEffect(() => {
+    if (!dailyModalDate) return;
+
+    const modal = dailyModalRef.current;
+    if (!modal) return;
+
+    const selector =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const focusables = Array.from(modal.querySelectorAll<HTMLElement>(selector)).filter(
+      (el) => !el.hasAttribute("disabled")
+    );
+    (focusables[0] ?? modal).focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setDailyModalDate(null);
+        return;
+      }
+
+      if (e.key !== "Tab") return;
+
+      const nodes = Array.from(modal.querySelectorAll<HTMLElement>(selector)).filter(
+        (el) => !el.hasAttribute("disabled")
+      );
+      if (nodes.length === 0) return;
+
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (!active || !modal.contains(active)) {
+        e.preventDefault();
+        first.focus();
+        return;
+      }
+
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [dailyModalDate]);
 
   const handleEditPost = (id: string, updates: Partial<ScheduledPost>) => {
     if (onEdit) {
@@ -475,12 +583,20 @@ export function CalendarView({
               return (
                 <div
                   key={cell.key}
-                  className={`calendar-day ${cell.inMonth ? "" : "outside"} ${cell.isToday ? "today" : ""} ${dayPosts.length > 0 ? "has-posts" : ""}`}
+                  className={`calendar-day ${cell.inMonth ? "" : "outside"} ${cell.isToday ? "today" : ""} ${dayPosts.length > 0 ? "has-posts" : "no-posts"}`}
                   style={viewMode === "week" ? { flex: 1, minHeight: 600 } : {}}
                   onClick={() => setComposing(cell.key)}
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, cell.key)}
                   aria-label={`Add post on ${cell.key}`}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setComposing(cell.key);
+                    }
+                  }}
                 >
                   <span className="calendar-day-num">
                     {cell.dayNum}
@@ -515,7 +631,7 @@ export function CalendarView({
                         setDailyModalDate(cell.key);
                       }}
                     >
-                      +{overflowCount} more
+                      View +{overflowCount} more
                     </div>
                   )}
                 </div>
@@ -528,7 +644,13 @@ export function CalendarView({
       {viewMode === "list" && (
         <div className="calendar-list-view">
           {posts.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>No posts scheduled yet.</div>
+            <div className="calendar-empty-state">
+              <div className="calendar-empty-title">No posts scheduled yet</div>
+              <p className="calendar-empty-copy">Start with your first draft and map out this week&apos;s campaign.</p>
+              <button className="btn btn-accent" onClick={() => setComposing(toDateKey(new Date()))}>
+                <PlusIcon size={14} /> Create first draft
+              </button>
+            </div>
           ) : (
             [...posts].sort((a, b) => a.date.localeCompare(b.date) || (a.time || "").localeCompare(b.time || "")).map((post) => {
               const PIcon = PLATFORM_META[post.platform]?.icon;
@@ -560,11 +682,13 @@ export function CalendarView({
       {composing && (
         <div className="modal-overlay" onClick={() => setComposing(null)}>
           <div
+            ref={composeModalRef}
             className="modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="compose-title"
             onClick={(e) => e.stopPropagation()}
+            tabIndex={-1}
           >
             <div className="modal-header">
               <h2 className="modal-title" id="compose-title">
@@ -591,7 +715,6 @@ export function CalendarView({
                   onChange={(e) => setTitle(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && submit()}
                   placeholder="e.g. Weekend brunch menu drop"
-                  autoFocus
                 />
               </div>
 
@@ -684,10 +807,11 @@ export function CalendarView({
               <button
                 className="btn btn-accent"
                 onClick={submit}
-                disabled={title.trim().length < 3}
-                style={{ opacity: title.trim().length < 3 ? 0.5 : 1 }}
+                disabled={title.trim().length < 3 || isAddingDraft}
+                style={{ opacity: title.trim().length < 3 || isAddingDraft ? 0.5 : 1 }}
               >
-                Add draft
+                {isAddingDraft ? <LoaderIcon size={14} className="spin" /> : null}
+                {isAddingDraft ? "Adding draft..." : "Add draft"}
               </button>
             </div>
           </div>
@@ -697,7 +821,7 @@ export function CalendarView({
       {/* Daily Overflow Modal */}
       {dailyModalDate && (
         <div className="modal-overlay" onClick={() => setDailyModalDate(null)}>
-          <div className="modal" style={{ maxWidth: 600 }} onClick={(e) => e.stopPropagation()}>
+          <div ref={dailyModalRef} className="modal" style={{ maxWidth: 600 }} onClick={(e) => e.stopPropagation()} tabIndex={-1}>
             <div className="modal-header">
               <h2 className="modal-title">
                 Posts for {new Date(dailyModalDate + "T00:00:00").toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
