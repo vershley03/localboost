@@ -22,3 +22,7 @@ npm-debug.log*
 # Editor
 .vscode/
 .idea/
+
+# Python bytecode from vendored skills
+__pycache__/
+*.pyc
