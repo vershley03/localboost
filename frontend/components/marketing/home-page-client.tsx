@@ -223,7 +223,7 @@ export function HomePageClient({ isSignedIn }: { isSignedIn: boolean }) {
               <span className="window-dot yellow" />
               <span className="window-dot green" />
               <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
-                <div style={{ background: "#FFFFFF", padding: "4px 16px", borderRadius: "6px", fontSize: "13px", color: "#94A3B8", border: "1px solid #E2E8F0", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+                <div style={{ background: "var(--bg-surface)", padding: "4px 16px", borderRadius: "6px", fontSize: "13px", color: "var(--text-faint)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}>
                   app.pinspark.com
                 </div>
               </div>
@@ -284,14 +284,14 @@ export function HomePageClient({ isSignedIn }: { isSignedIn: boolean }) {
                       </div>
                     </div>
 
-                    <div style={{ background: "#FFFFFF", borderRadius: "16px", border: "1px solid var(--border)", padding: "24px", flex: 1 }}>
-                      <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "16px" }}>Upcoming Content</h3>
+                    <div style={{ background: "var(--bg-surface)", borderRadius: "16px", border: "1px solid var(--border)", padding: "24px", flex: 1 }}>
+                      <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "16px", color: "var(--text-primary)" }}>Upcoming Content</h3>
                       {[
-                        { day: "Today", content: "Morning Coffee Special — Instagram Story", color: "#0284C7" },
-                        { day: "Tomorrow", content: "Meet the Barista: James — Facebook Post", color: "#10B981" },
+                        { day: "Today", content: "Morning Coffee Special — Instagram Story", color: "var(--accent)", tint: "var(--accent-subtle)" },
+                        { day: "Tomorrow", content: "Meet the Barista: James — Facebook Post", color: "var(--sage)", tint: "rgba(16, 185, 129, 0.12)" },
                       ].map((post, index) => (
-                        <div key={index} style={{ display: "flex", gap: "16px", alignItems: "center", padding: "12px 0", borderBottom: index === 0 ? "1px solid #F1F5F9" : "none" }}>
-                          <div style={{ background: `${post.color}15`, color: post.color, padding: "8px 12px", borderRadius: "8px", fontSize: "13px", fontWeight: 700, width: "90px", textAlign: "center" }}>{post.day}</div>
+                        <div key={index} style={{ display: "flex", gap: "16px", alignItems: "center", padding: "12px 0", borderBottom: index === 0 ? "1px solid var(--border)" : "none" }}>
+                          <div style={{ background: post.tint, color: post.color, padding: "8px 12px", borderRadius: "8px", fontSize: "13px", fontWeight: 700, width: "90px", textAlign: "center" }}>{post.day}</div>
                           <div style={{ fontSize: "14px", color: "var(--text-primary)", fontWeight: 500 }}>{post.content}</div>
                         </div>
                       ))}
@@ -306,7 +306,7 @@ export function HomePageClient({ isSignedIn }: { isSignedIn: boolean }) {
                     </div>
                     <h2 style={{ fontSize: "20px", fontWeight: 800 }}>Magic Content Creator</h2>
                     <p style={{ color: "var(--text-muted)", marginTop: "8px", maxWidth: "300px" }}>Describe your latest update and let the AI draft perfect posts for all networks.</p>
-                    <div className="typing-cursor" style={{ marginTop: "24px", background: "#F8FAFC", border: "1px solid var(--border)", borderRadius: "12px", padding: "16px", width: "100%", maxWidth: "400px", display: "flex", gap: "8px", alignItems: "center" }}>
+                    <div className="typing-cursor" style={{ marginTop: "24px", background: "var(--bg-base)", border: "1px solid var(--border)", borderRadius: "12px", padding: "16px", width: "100%", maxWidth: "400px", display: "flex", gap: "8px", alignItems: "center" }}>
                       <span style={{ flex: 1, fontSize: "14px", color: "var(--text-primary)", minHeight: "20px" }}>{typedText}</span>
                       <span className="btn btn-accent" style={{ padding: "8px 16px", fontSize: "13px" }} aria-hidden="true">Generate</span>
                     </div>
@@ -318,12 +318,12 @@ export function HomePageClient({ isSignedIn }: { isSignedIn: boolean }) {
                     <div className="dashboard-header-row" style={{ marginBottom: "24px" }}>
                       <h2 style={{ fontSize: "20px", fontWeight: 800 }}>Content Calendar</h2>
                     </div>
-                    <div style={{ flex: 1, border: "1px solid var(--border)", borderRadius: "16px", display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gridTemplateRows: "40px repeat(3, 1fr)", background: "#F8FAFC", overflow: "hidden" }}>
+                    <div style={{ flex: 1, border: "1px solid var(--border)", borderRadius: "16px", display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gridTemplateRows: "40px repeat(3, 1fr)", background: "var(--bg-base)", overflow: "hidden" }}>
                       {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
                         <div key={day} style={{ padding: "10px", fontSize: "12px", fontWeight: 700, color: "var(--text-muted)", borderBottom: "1px solid var(--border)", textAlign: "center" }}>{day}</div>
                       ))}
                       {Array.from({ length: 21 }).map((_, index) => (
-                        <div key={index} style={{ borderRight: "1px solid var(--border)", borderBottom: "1px solid var(--border)", padding: "8px", background: "#FFFFFF" }}>
+                        <div key={index} style={{ borderRight: "1px solid var(--border)", borderBottom: "1px solid var(--border)", padding: "8px", background: "var(--bg-surface)" }}>
                           <div style={{ fontSize: "12px", color: "var(--text-faint)", marginBottom: "4px" }}>{index + 1}</div>
                           {index === 3 && <div style={{ background: "var(--accent)", color: "white", fontSize: "10px", padding: "4px", borderRadius: "4px" }}>IG Post</div>}
                           {index === 5 && <div style={{ background: "var(--sage)", color: "white", fontSize: "10px", padding: "4px", borderRadius: "4px" }}>FB Ad</div>}
@@ -418,7 +418,7 @@ export function HomePageClient({ isSignedIn }: { isSignedIn: boolean }) {
         </div>
       </section>
 
-      <section className="section section-full" id="how-it-works" style={{ background: "#FFFFFF", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
+      <section className="section section-full" id="how-it-works" style={{ background: "var(--bg-surface)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
         <div className="section-full-inner">
           <div className="section-header">
             <div className="section-label" style={{ background: "rgba(16, 185, 129, 0.1)", color: "var(--sage)" }}>Process</div>
@@ -443,7 +443,7 @@ export function HomePageClient({ isSignedIn }: { isSignedIn: boolean }) {
         </div>
       </section>
 
-      <section className="section section-full" id="pricing" style={{ background: "#F8FAFC", borderBottom: "1px solid var(--border)" }}>
+      <section className="section section-full" id="pricing" style={{ background: "var(--bg-base)", borderBottom: "1px solid var(--border)" }}>
         <div className="section-full-inner">
           <MarketingPricingSection />
         </div>
@@ -455,10 +455,10 @@ export function HomePageClient({ isSignedIn }: { isSignedIn: boolean }) {
           <p className="cta-subtitle">
             Join thousands of local business owners saving 10+ hours a week with PinSpark.
           </p>
-          <Link href={isSignedIn ? "/dashboard" : "/sign-up"} className="btn btn-outline btn-lg" style={{ color: "#0F172A", border: "none", padding: "16px 32px", fontSize: "18px" }}>
+          <Link href={isSignedIn ? "/dashboard" : "/sign-up"} className="btn btn-invert btn-lg" style={{ padding: "16px 32px", fontSize: "18px", position: "relative", zIndex: 2 }}>
             {isSignedIn ? "Return to your dashboard" : "Start your free trial today"}
           </Link>
-          <div style={{ marginTop: "24px", color: "rgba(255,255,255,0.7)", fontSize: "14px", fontWeight: 500, position: "relative", zIndex: 2 }}>
+          <div className="cta-note">
             No credit card required. Cancel anytime.
           </div>
         </div>
