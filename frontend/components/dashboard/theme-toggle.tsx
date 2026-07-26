@@ -1,28 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { SunIcon, MoonIcon } from "@/components/icons";
 
-function getInitialDarkMode() {
-  if (typeof window === "undefined") return false;
-  return localStorage.getItem("lb:theme") === "dark";
+// The <html data-theme> attribute is the source of truth: the inline script in
+// the root layout sets it before first paint, and this component subscribes to
+// it. Reading localStorage during render instead would make the server and
+// client markup disagree on hydration.
+function subscribe(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+  return () => observer.disconnect();
+}
+
+function isDark() {
+  return document.documentElement.getAttribute("data-theme") === "dark";
 }
 
 export function ThemeToggle() {
-  const [dark, setDark] = useState(getInitialDarkMode);
-
-  useEffect(() => {
-    if (dark) {
-      document.documentElement.setAttribute("data-theme", "dark");
-      localStorage.setItem("lb:theme", "dark");
-    } else {
-      document.documentElement.removeAttribute("data-theme");
-      localStorage.setItem("lb:theme", "light");
-    }
-  }, [dark]);
+  const dark = useSyncExternalStore(subscribe, isDark, () => false);
 
   const toggle = () => {
-    setDark((value) => !value);
+    const next = !dark;
+    if (next) {
+      document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+    try {
+      localStorage.setItem("lb:theme", next ? "dark" : "light");
+    } catch {
+      // Storage can be unavailable (private mode, blocked cookies) — the theme
+      // still applies for this page, it just won't be remembered.
+    }
   };
 
   return (

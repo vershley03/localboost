@@ -2,7 +2,18 @@ import {ClerkProvider} from "@clerk/nextjs";
 import type { Metadata } from "next";
 import "./globals.css";
 
+// Absolute URLs for OG/Twitter images. Without this Next falls back to
+// http://localhost:3000 and every social share card breaks.
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "PinSpark — AI Marketing for Local Businesses",
   description: "Supercharge your local business with AI-powered content, brand strategy, and marketing automation. Built for small businesses that want to compete like enterprises.",
   icons: {
@@ -30,7 +41,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Applies the saved theme before first paint. Runs on every route, so the
+            marketing pages and the dashboard agree on the theme whether you land
+            here directly or navigate client-side — and there's no light flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{if(localStorage.getItem('lb:theme')==='dark'){document.documentElement.setAttribute('data-theme','dark')}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body>
         <ClerkProvider>
           {children}

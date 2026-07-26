@@ -31,12 +31,57 @@
   --violet:       #8B5CF6;
   
   --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  
+
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
   --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+
+  /* Frosted surfaces (navbar, floating cards, stat tiles).
+     Tokenised so both themes stay legible — never hardcode rgba(255,255,255,x). */
+  --glass-bg:       rgba(255, 255, 255, 0.82);
+  --glass-bg-hover: rgba(255, 255, 255, 0.92);
+  --glass-border:   rgba(255, 255, 255, 0.6);
+  /* The navbar is fixed over scrolling content, so it needs to be more opaque
+     than the other frosted surfaces or headings read straight through it. */
+  --glass-bg-nav:   rgba(255, 255, 255, 0.94);
+  --chrome-bg:      rgba(248, 250, 252, 0.8);
+  --hover-wash:     rgba(15, 23, 42, 0.03);
+
+  /* Inverted surface used by the closing CTA banner */
+  --invert-bg:      #0F172A;
+  --invert-text:    #FFFFFF;
+  --invert-muted:   #CBD5E1;
+
+  /* Primary button — dark fill on light theme, accent fill on dark theme */
+  --btn-primary-bg:       #0F172A;
+  --btn-primary-bg-hover: #1E293B;
+  --btn-primary-fg:       #FFFFFF;
+  --btn-primary-shadow:   rgba(15, 23, 42, 0.15);
+
+  /* Clerk component theming — Clerk reads these natively, so its billing UI
+     follows our tokens (and our theme switch) without any appearance prop.
+     https://clerk.com/docs/nextjs/guides/customizing-clerk/appearance-prop/variables */
+  --clerk-color-background:        var(--bg-surface);
+  --clerk-color-foreground:        var(--text-primary);
+  --clerk-color-muted:             var(--bg-base);
+  --clerk-color-muted-foreground:  var(--text-muted);
+  --clerk-color-primary:           var(--accent);
+  --clerk-color-primary-foreground:#FFFFFF;
+  --clerk-color-border:            var(--border);
+  --clerk-color-input:             var(--bg-surface);
+  --clerk-color-input-foreground:  var(--text-primary);
+  --clerk-color-ring:              var(--border-focus);
+  --clerk-color-shadow:            rgba(15, 23, 42, 0.08);
+  --clerk-color-neutral:           var(--text-muted);
+  --clerk-color-danger:            #EF4444;
+  --clerk-color-success:           var(--sage);
+  --clerk-color-warning:           var(--coral);
+  --clerk-color-modal-backdrop:    rgba(15, 23, 42, 0.5);
+  --clerk-font-family:             var(--font);
+  --clerk-font-family-buttons:     var(--font);
+  --clerk-border-radius:           16px;
 }
 
 /* ===== DARK MODE ===== */
@@ -65,6 +110,26 @@
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
   --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+  --glass-bg:       rgba(19, 27, 46, 0.82);
+  --glass-bg-hover: rgba(26, 37, 64, 0.92);
+  --glass-border:   rgba(255, 255, 255, 0.1);
+  --glass-bg-nav:   rgba(15, 22, 38, 0.94);
+  --chrome-bg:      rgba(11, 17, 32, 0.85);
+  --hover-wash:     rgba(255, 255, 255, 0.05);
+
+  --invert-bg:      #060C18;
+  --invert-text:    #F1F5F9;
+  --invert-muted:   #94A3B8;
+
+  --btn-primary-bg:       #38BDF8;
+  --btn-primary-bg-hover: #0EA5E9;
+  --btn-primary-fg:       #06121F;
+  --btn-primary-shadow:   rgba(56, 189, 248, 0.25);
+
+  --clerk-color-primary-foreground: #06121F;
+  --clerk-color-shadow:            rgba(0, 0, 0, 0.4);
+  --clerk-color-modal-backdrop:    rgba(2, 6, 16, 0.6);
 }
 
 [data-theme="dark"] body {
@@ -95,6 +160,21 @@
 }
 
 [data-theme="dark"] .mesh-blob { opacity: 0.15; }
+
+/* Marketing surfaces that can't be expressed with the shared tokens alone */
+[data-theme="dark"] .bento-card:hover { border-color: var(--border-hover); }
+
+[data-theme="dark"] .dashboard-preview-frame {
+  box-shadow: var(--shadow-xl), 0 40px 80px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .pricing-clerk-shell {
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), transparent 30%),
+    linear-gradient(180deg, rgba(19, 27, 46, 0.92), rgba(11, 17, 32, 0.96));
+}
+
+[data-theme="dark"] .cta-card { border: 1px solid var(--border); }
 
 html { scroll-behavior: smooth; }
 
@@ -200,10 +280,10 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--glass-bg-nav);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-sm), var(--shadow-glass);
   border-radius: 100px;
   z-index: 1000;
@@ -328,14 +408,14 @@ body {
 }
 
 .btn-primary {
-  background: var(--text-primary);
-  color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-fg);
+  box-shadow: 0 4px 12px var(--btn-primary-shadow);
 }
 .btn-primary:hover {
-  background: #1E293B;
+  background: var(--btn-primary-bg-hover);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
+  box-shadow: 0 6px 16px var(--btn-primary-shadow);
 }
 
 .btn-accent {
@@ -448,10 +528,10 @@ body {
 /* Floating Metric Cards (Glassmorphism) */
 .floating-metric {
   position: absolute;
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--glass-border);
   border-radius: 20px;
   padding: 16px 24px;
   display: flex;
@@ -526,7 +606,7 @@ body {
   gap: 8px;
   padding: 14px 24px;
   border-bottom: 1px solid var(--border);
-  background: rgba(248, 250, 252, 0.8);
+  background: var(--chrome-bg);
 }
 
 .window-dot {
@@ -574,7 +654,7 @@ body {
 }
 
 .sidebar-item:not(.active):hover {
-  background: rgba(15, 23, 42, 0.03);
+  background: var(--hover-wash);
   color: var(--text-primary);
 }
 
@@ -624,10 +704,10 @@ body {
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--glass-border);
   border-radius: 20px;
   padding: 24px;
   box-shadow: var(--shadow-glass), 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -642,8 +722,8 @@ body {
 .stat-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-glass), var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 1);
-  background: rgba(255, 255, 255, 0.8);
+  border-color: var(--border-hover);
+  background: var(--glass-bg-hover);
 }
 
 .stat-header {
@@ -888,7 +968,7 @@ body {
 
 /* ===== CTA SECTION ===== */
 .cta-card {
-  background: var(--text-primary);
+  background: var(--invert-bg);
   border-radius: 40px;
   padding: 100px 40px;
   text-align: center;
@@ -924,7 +1004,7 @@ body {
 .cta-title {
   font-size: clamp(40px, 6vw, 56px);
   font-weight: 800;
-  color: #FFFFFF;
+  color: var(--invert-text);
   letter-spacing: -2px;
   margin-bottom: 24px;
   position: relative;
@@ -933,9 +1013,32 @@ body {
 
 .cta-subtitle {
   font-size: 20px;
-  color: var(--text-faint);
+  color: var(--invert-muted);
   max-width: 600px;
   margin: 0 auto 48px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Light pill button that sits on the inverted CTA banner in both themes */
+.btn-invert {
+  background: var(--invert-text);
+  color: var(--invert-bg);
+  border: none;
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-invert:hover {
+  background: var(--invert-text);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-xl);
+}
+
+.cta-note {
+  margin-top: 24px;
+  color: var(--invert-muted);
+  font-size: 14px;
+  font-weight: 500;
   position: relative;
   z-index: 2;
 }
@@ -2513,7 +2616,9 @@ body {
   gap: 8px;
 }
 
-.mobile-menu a {
+/* Scoped to the link list only — a bare `.mobile-menu a` also matched the
+   `.btn` CTAs below and stripped the primary button of its fill. */
+.mobile-menu-links a {
   padding: 16px;
   border-radius: 16px;
   text-decoration: none;
@@ -2528,7 +2633,7 @@ body {
   background: var(--bg-base);
 }
 
-.mobile-menu a:hover {
+.mobile-menu-links a:hover {
   border-color: var(--border);
   background: var(--bg-surface);
 }
@@ -2543,6 +2648,13 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+.mobile-menu-actions .btn {
+  width: 100%;
+  justify-content: center;
+  padding: 14px 16px;
+  font-size: 16px;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -4086,200 +4198,79 @@ body {
   padding: 40px 24px;
 }
 
-/* ===== CLERK PRICING TABLE STYLING ===== */
+/* ===== CLERK BILLING UI =====
+   Colour, type and radius come from the --clerk-* custom properties declared in
+   :root / [data-theme="dark"], which Clerk reads natively — so the pricing table
+   and checkout follow the design tokens and the theme toggle on their own.
+   Only layout and the surrounding shell are styled here; no !important overrides
+   on Clerk's internal class names, which are not a public API. */
 .pricing-clerk-shell {
+  width: 100%;
+  font-family: var(--font);
+}
+
+.pricing-clerk-shell > div {
   width: 100%;
 }
 
-/* Main pricing container */
-.pricing-clerk-shell .cl-pricingTable {
-  width: 100% !important;
+/* Skeleton shown while Clerk's script boots */
+.pricing-fallback {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
 }
 
-/* Pricing cards container */
-.pricing-clerk-shell [class*="pricingCard"] {
-  background: var(--bg-surface) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 20px !important;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  overflow: hidden;
-}
-
-.pricing-clerk-shell [class*="pricingCard"]:hover {
-  box-shadow: var(--shadow-lg) !important;
-  border-color: var(--border-hover) !important;
-  transform: translateY(-4px) !important;
-}
-
-/* Popular/Featured card */
-.pricing-clerk-shell [class*="pricingCard"][class*="popular"],
-.pricing-clerk-shell [class*="pricingCard"][data-popular="true"] {
-  border: 2px solid var(--accent) !important;
-  box-shadow: var(--shadow-xl), 0 0 32px rgba(2, 132, 199, 0.15) !important;
-  transform: scale(1.02) !important;
-}
-
-.pricing-clerk-shell [class*="pricingCard"][class*="popular"]:hover,
-.pricing-clerk-shell [class*="pricingCard"][data-popular="true"]:hover {
-  transform: scale(1.02) translateY(-4px) !important;
-}
-
-/* Card titles */
-.pricing-clerk-shell [class*="pricingCardHeader"],
-.pricing-clerk-shell h3 {
-  color: var(--text-primary) !important;
-  font-weight: 800 !important;
-  font-size: 20px !important;
-}
-
-/* Card descriptions */
-.pricing-clerk-shell [class*="pricingCardDescription"],
-.pricing-clerk-shell p {
-  color: var(--text-muted) !important;
-  font-size: 14px !important;
-  line-height: 1.5 !important;
-}
-
-/* Price amount */
-.pricing-clerk-shell [class*="priceAmount"],
-.pricing-clerk-shell [class*="price"] [class*="amount"],
-.pricing-clerk-shell .amount,
-.pricing-clerk-shell [class*="Price"] {
-  color: var(--text-primary) !important;
-  font-weight: 800 !important;
-  font-size: 44px !important;
-  letter-spacing: -1px !important;
-}
-
-/* Price period/billing */
-.pricing-clerk-shell [class*="pricePeriod"],
-.pricing-clerk-shell .period,
-.pricing-clerk-shell [class*="billingPeriod"] {
-  color: var(--text-muted) !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-}
-
-/* Toggle/switch for billing */
-.pricing-clerk-shell input[type="checkbox"],
-.pricing-clerk-shell [class*="toggle"] {
-  accent-color: var(--accent) !important;
-}
-
-/* CTA Buttons - Primary Style */
-.pricing-clerk-shell button,
-.pricing-clerk-shell [class*="button"],
-.pricing-clerk-shell [role="button"] {
-  background: var(--accent) !important;
-  color: white !important;
-  border: none !important;
-  border-radius: 12px !important;
-  padding: 12px 20px !important;
-  font-weight: 700 !important;
-  font-size: 15px !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  width: 100% !important;
-  margin: 24px 0 !important;
-}
-
-.pricing-clerk-shell button:hover,
-.pricing-clerk-shell [class*="button"]:hover,
-.pricing-clerk-shell [role="button"]:hover {
-  background: var(--accent-hover) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 16px rgba(2, 132, 199, 0.3) !important;
-}
-
-.pricing-clerk-shell button:active,
-.pricing-clerk-shell [class*="button"]:active {
-  transform: translateY(0) !important;
-}
-
-/* Features list */
-.pricing-clerk-shell ul,
-.pricing-clerk-shell [class*="featureList"],
-.pricing-clerk-shell [class*="features"] {
-  list-style: none !important;
+.pricing-fallback-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  gap: 14px !important;
+  gap: 14px;
+  min-height: 300px;
 }
 
-.pricing-clerk-shell li,
-.pricing-clerk-shell [class*="feature"] {
+.pricing-fallback-line {
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--bg-base) 25%, var(--bg-card-hover) 50%, var(--bg-base) 75%);
+  background-size: 200% 100%;
+  animation: pricing-shimmer 1.4s ease-in-out infinite;
+}
+
+.pricing-fallback-line.title { width: 45%; height: 16px; }
+.pricing-fallback-line.price { width: 60%; height: 34px; margin-bottom: 8px; }
+.pricing-fallback-line.short { width: 70%; }
+.pricing-fallback-line.cta   { width: 100%; height: 42px; border-radius: 999px; margin-top: auto; }
+
+@keyframes pricing-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* Shown when Clerk cannot load at all (blocked script, offline, misconfig) so
+   the pricing section degrades to something actionable instead of an empty box */
+.pricing-unavailable {
+  text-align: center;
+  padding: 48px 24px;
   display: flex;
-  align-items: flex-start;
-  gap: 12px !important;
-  font-size: 14px !important;
-  color: var(--text-muted) !important;
-  line-height: 1.5 !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
-/* Checkmarks/Icons */
-.pricing-clerk-shell svg[class*="check"],
-.pricing-clerk-shell [class*="icon"] svg,
-.pricing-clerk-shell li::before {
-  color: var(--sage) !important;
-  width: 20px !important;
-  height: 20px !important;
-  stroke: var(--sage) !important;
-  stroke-width: 2.5 !important;
-  flex-shrink: 0;
+.pricing-unavailable-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
 }
 
-/* Badge/label */
-.pricing-clerk-shell [class*="badge"],
-.pricing-clerk-shell [class*="label"] {
-  background: var(--accent-subtle) !important;
-  color: var(--accent) !important;
-  padding: 6px 12px !important;
-  border-radius: 100px !important;
-  font-size: 12px !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-}
-
-/* Grid/Container */
-.pricing-clerk-shell [class*="container"],
-.pricing-clerk-shell [class*="grid"] {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
-  gap: 28px !important;
-  width: 100% !important;
-}
-
-/* Typography - ensure font consistency */
-.pricing-clerk-shell {
-  font-family: var(--font) !important;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .pricing-clerk-shell [class*="container"],
-  .pricing-clerk-shell [class*="grid"] {
-    grid-template-columns: 1fr !important;
-  }
-
-  .pricing-clerk-shell [class*="pricingCard"][class*="popular"],
-  .pricing-clerk-shell [class*="pricingCard"][data-popular="true"] {
-    transform: scale(1) !important;
-  }
-
-  .pricing-clerk-shell [class*="pricingCard"][class*="popular"]:hover,
-  .pricing-clerk-shell [class*="pricingCard"][data-popular="true"]:hover {
-    transform: translateY(-4px) !important;
-  }
-
-  .pricing-clerk-shell [class*="pricingCard"] {
-    padding: 24px !important;
-  }
-
-  .pricing-clerk-shell [class*="priceAmount"],
-  .pricing-clerk-shell [class*="Price"] {
-    font-size: 36px !important;
-  }
+.pricing-unavailable-text {
+  font-size: 15px;
+  color: var(--text-muted);
+  max-width: 420px;
+  line-height: 1.6;
 }
 
 /* ===== ASSET LIBRARY ===== */
