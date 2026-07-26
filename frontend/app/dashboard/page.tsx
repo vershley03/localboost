@@ -75,6 +75,14 @@ function DashboardInner() {
     }
   }, [orgState.cleanupQueryParams, orgState.startupToast, toast]);
 
+  // Scroll to top when tab changes
+  useEffect(() => {
+    const mainElement = document.querySelector(".app-main");
+    if (mainElement) {
+      mainElement.scrollTop = 0;
+    }
+  }, [activeTab]);
+
   const handleNavigateToCreator = (prompt: string) => {
     setInitialPrompt(prompt);
     setActiveTab("creator");

@@ -437,7 +437,7 @@ export function MagicCreator({
                 <label style={{ display: "block", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700, color: "var(--text-faint)", marginBottom: 8 }}>
                   Brand Tone
                 </label>
-                <select className="select" style={{ width: "100%", fontSize: 14 }} value={tone} onChange={e => setTone(e.target.value)}>
+                <select className="select" style={{ width: "100%", fontSize: 14, cursor: "pointer", background: "var(--bg-surface)", border: "1.5px solid var(--border-focus)", padding: "10px 12px", borderRadius: "8px", transition: "all 0.2s ease" }} value={tone} onChange={e => setTone(e.target.value)} title="Click to change the tone for your AI-generated content">
                   <option value="Professional">Professional</option>
                   <option value="Casual & Friendly">Casual & Friendly</option>
                   <option value="Witty & Humorous">Witty & Humorous</option>
@@ -451,10 +451,11 @@ export function MagicCreator({
                 </label>
                 <textarea 
                   className="input" 
-                  style={{ width: "100%", fontSize: 14, resize: "none", height: "42px", paddingTop: "10px" }} 
+                  style={{ width: "100%", fontSize: 14, resize: "none", height: "42px", paddingTop: "10px", background: "var(--bg-surface)", border: "1.5px solid var(--border-focus)", borderRadius: "8px", transition: "all 0.2s ease", cursor: "text" }} 
                   value={audience} 
                   onChange={e => setAudience(e.target.value)} 
-                  placeholder="e.g. Local professionals, college students, and coffee enthusiasts in the downtown area" 
+                  placeholder="e.g. Local professionals, college students, and coffee enthusiasts in the downtown area"
+                  title="Click to edit who your content is for"
                 />
              </div>
           </div>
