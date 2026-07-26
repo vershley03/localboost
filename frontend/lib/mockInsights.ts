@@ -87,7 +87,7 @@ export function getMockInsights(
       type: "spike",
       title: `📈 @${topPost.competitorId} just hit ${topPost.likeCount} likes — viral moment`,
       body: `Their post "${topPost.caption.slice(0, 60)}..." got ${topPost.likeCount} likes in 2 days (3x their average). The hook: behind-the-scenes + community call-to-action. Try similar authenticity in your next post.`,
-      competitors: [topPost.competitorId as any],
+      competitors: [topPost.competitorId],
       evidence: [topPost],
       suggestedPrompt: "Behind-the-scenes coffee shop moment, authentic team interaction, community-focused storytelling",
       priority: "medium",

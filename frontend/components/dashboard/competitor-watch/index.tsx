@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useToast } from "@/components/toast";
 import { CompetitorInput } from "./competitor-input";
 import { CompetitorCard } from "./competitor-card";

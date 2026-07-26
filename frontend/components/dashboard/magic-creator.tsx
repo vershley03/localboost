@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import {
   CopyIcon,
   FacebookIcon,
@@ -40,6 +40,13 @@ interface Variant {
   platform: Platform;
   caption: string;
   source: "openai" | "template";
+}
+
+interface GeneratePostsResponse {
+  posts?: Array<{
+    platform: Platform;
+    caption: string;
+  }>;
 }
 
 const CHAR_LIMITS: Record<Platform, number> = {
@@ -139,7 +146,6 @@ export function MagicCreator({
   const [image, setImage] = useState<string | null>(null);
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [showAssetDrawer, setShowAssetDrawer] = useState(false);
-  const [previewVariant, setPreviewVariant] = useState<Variant | null>(null);
   
   // Custom Tone & Audience Overrides
   const [tone, setTone] = useState(brand.tone);
@@ -245,9 +251,9 @@ export function MagicCreator({
         body: JSON.stringify({ prompt, platforms: selected, brand, customTone: tone, customAudience: audience, image: image ?? undefined }),
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as GeneratePostsResponse;
         if (data.posts) {
-          results = data.posts.map((p: any) => ({
+          results = data.posts.map((p) => ({
             id: newId(),
             platform: p.platform,
             caption: p.caption,
@@ -277,7 +283,7 @@ export function MagicCreator({
         body: JSON.stringify({ prompt, platforms: [platform], brand, customTone: tone, customAudience: audience }),
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as GeneratePostsResponse;
         if (data.posts && data.posts.length > 0) {
           const newVariants = [...variants];
           newVariants[index].caption = data.posts[0].caption;
@@ -480,7 +486,7 @@ export function MagicCreator({
               <circle cx="75" cy="75" r="5" fill="var(--violet)" />
             </svg>
           </div>
-          <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>Writer's Block?</h3>
+          <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>Writer&apos;s Block?</h3>
           <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Let AI generate a week of content ideas tailored perfectly for {brand.businessName}.</p>
           
           {ideas.length === 0 ? (

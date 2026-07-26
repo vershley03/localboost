@@ -12,159 +12,64 @@ import { CompetitorWatch } from "@/components/dashboard/competitor-watch";
 import { Integrations } from "@/components/dashboard/integrations";
 import { OrgModal } from "@/components/dashboard/org-switcher";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
-import { LogOutIcon } from "@/components/icons";
 import { useUser, UserButton } from "@clerk/nextjs";
-import {
-  DEFAULT_BRAND,
-  getBrand,
-  getBrandKit,
-  getAssets,
-  getConnections,
-  getGenerationCount,
-  getPosts,
-  saveBrand,
-  saveBrandKit,
-  saveAssets,
-  saveConnections,
-  savePosts,
-  ensureMigrated,
-  getOrgs,
-  createOrg,
-  getCompetitors,
-  saveCompetitors,
-  getInsights,
-  saveInsights,
-  actOnInsight,
-  type BrandProfile,
-  type BrandKit,
-  type BrandAsset,
-  type Connections,
-  type ScheduledPost,
-  type Org,
-  type TrackedCompetitor,
-  type CompetitorInsight,
-  DEFAULT_BRAND_KIT,
-} from "@/lib/store";
+import { useDashboardOrgState } from "@/lib/useDashboardOrgState";
+
+function parseStoredUserName(): string {
+  if (typeof window === "undefined") return "Sarah";
+
+  const stored = window.localStorage.getItem("lb:username");
+  if (!stored) return "Sarah";
+
+  try {
+    const parsed = JSON.parse(stored);
+    return typeof parsed === "string" ? parsed : "Sarah";
+  } catch {
+    return stored;
+  }
+}
 
 function DashboardInner() {
-  const [activeTab, setActiveTab] = useState<TabId>("overview");
-  const [ready, setReady] = useState(false);
-  const [orgs, setOrgs] = useState<Org[]>([]);
-  const [activeOrgId, setActiveOrgId] = useState<string>("");
+  const orgState = useDashboardOrgState();
+  const [activeTab, setActiveTab] = useState<TabId>(orgState.activeTab);
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
   const { user } = useUser();
 
-  const [posts, setPosts] = useState<ScheduledPost[]>([]);
-  const [brand, setBrand] = useState<BrandProfile>(DEFAULT_BRAND);
-  const [brandKit, setBrandKit] = useState<BrandKit>(DEFAULT_BRAND_KIT);
-  const [assets, setAssets] = useState<BrandAsset[]>([]);
-  const [connections, setConnections] = useState<Connections>({
-    instagram: false,
-    facebook: false,
-    google: false,
-    x: false,
-  });
-  const [generationCount, setGenerationCount] = useState(0);
-  const [userName, setUserName] = useState<string>("Sarah");
-  const [competitors, setCompetitors] = useState<TrackedCompetitor[]>([]);
-  const [insights, setInsights] = useState<CompetitorInsight[]>([]);
+  const {
+    orgs,
+    activeOrgId,
+    posts,
+    brand,
+    brandKit,
+    assets,
+    connections,
+    generationCount,
+    setGenerationCount,
+    competitors,
+    insights,
+    switchOrg,
+    createAndSelectOrg,
+    updatePosts,
+    updateBrand,
+    updateBrandKit,
+    updateAssets,
+    updateConnections,
+    updateCompetitors,
+    updateInsights,
+  } = orgState;
+
+  const [userName] = useState<string>(parseStoredUserName);
   const [initialPrompt, setInitialPrompt] = useState<string | null>(null);
   const toast = useToast();
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = window.localStorage.getItem("lb:username");
-      if (stored) {
-        try {
-          setUserName(JSON.parse(stored));
-        } catch {
-          setUserName(stored);
-        }
-      }
+    if (orgState.startupToast) {
+      toast(orgState.startupToast.message, orgState.startupToast.kind);
     }
-  }, []);
-
-  const updateUserName = (name: string) => {
-    setUserName(name);
-    window.localStorage.setItem("lb:username", JSON.stringify(name));
-  };
-
-  const loadOrgData = (orgId: string) => {
-    setPosts(getPosts(orgId));
-    setBrand(getBrand(orgId));
-    setBrandKit(getBrandKit(orgId));
-    setAssets(getAssets(orgId));
-    setConnections(getConnections(orgId));
-    setGenerationCount(getGenerationCount(orgId));
-    setCompetitors(getCompetitors(orgId));
-    setInsights(getInsights(orgId));
-  };
-
-  useEffect(() => {
-    const migratedId = ensureMigrated();
-    setActiveOrgId(migratedId);
-    setOrgs(getOrgs());
-    loadOrgData(migratedId);
-    setReady(true);
-
-    const params = new URLSearchParams(window.location.search);
-    const connected = params.get("connected");
-    const error = params.get("error");
-    if (connected === "facebook") {
-      const next = { ...getConnections(migratedId), facebook: true };
-      saveConnections(migratedId, next);
-      setConnections(next);
-      setActiveTab("integrations");
-      toast("Facebook Page connected");
-    } else if (error) {
-      setActiveTab("integrations");
-      toast(
-        error === "access_denied"
-          ? "Connection cancelled"
-          : "Connection failed — please try again",
-        "error",
-      );
-    }
-    if (connected || error) {
+    if (orgState.cleanupQueryParams) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [toast]);
-
-  const updatePosts = (next: ScheduledPost[]) => {
-    setPosts(next);
-    savePosts(activeOrgId, next);
-  };
-
-  const updateBrand = (next: BrandProfile) => {
-    setBrand(next);
-    saveBrand(activeOrgId, next);
-    setOrgs(getOrgs()); // Re-sync orgs list in case business name changed
-  };
-
-  const updateBrandKit = (next: BrandKit) => {
-    setBrandKit(next);
-    saveBrandKit(activeOrgId, next);
-  };
-
-  const updateAssets = (next: BrandAsset[]) => {
-    setAssets(next);
-    saveAssets(activeOrgId, next);
-  };
-
-  const updateConnections = (next: Connections) => {
-    setConnections(next);
-    saveConnections(activeOrgId, next);
-  };
-
-  const updateCompetitors = (next: TrackedCompetitor[]) => {
-    setCompetitors(next);
-    saveCompetitors(activeOrgId, next);
-  };
-
-  const updateInsights = (next: CompetitorInsight[]) => {
-    setInsights(next);
-    saveInsights(activeOrgId, next);
-  };
+  }, [orgState.cleanupQueryParams, orgState.startupToast, toast]);
 
   const handleNavigateToCreator = (prompt: string) => {
     setInitialPrompt(prompt);
@@ -172,20 +77,12 @@ function DashboardInner() {
   };
 
   const handleSwitchOrg = (id: string) => {
-    setActiveOrgId(id);
-    loadOrgData(id);
+    switchOrg(id);
     setInitialPrompt(null); // Clear any pending prompt
-    // Persist active org id implicitly handled in the store, but we might want to call setActiveOrgId there too.
-    // Wait, the store handles saving it in createOrg/ensureMigrated, but we should probably expose setActiveOrgId from store.
-    // Let's just rely on loadOrgData fetching the correct namespace, but for now let's also update localStorage
-    window.localStorage.setItem("lb:active-org", JSON.stringify(id));
   };
 
   const handleCreateOrg = (name: string, category: string) => {
-    const newOrg = createOrg(name, category);
-    setOrgs(getOrgs());
-    setActiveOrgId(newOrg.id);
-    loadOrgData(newOrg.id);
+    createAndSelectOrg(name, category);
     setIsOrgModalOpen(false);
     toast("Organization created successfully");
   };
@@ -203,7 +100,7 @@ function DashboardInner() {
         onCreateOrg={() => setIsOrgModalOpen(true)}
       />
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-        {ready && (
+        {activeOrgId && (
           <header className="app-header-desktop">
             <div className="app-header-left">
               <span className="org-badge">{brand.businessName}</span>
@@ -224,7 +121,7 @@ function DashboardInner() {
           onCreateOrg={() => setIsOrgModalOpen(true)}
         />
         <main className="app-main">
-          {ready ? (
+          {activeOrgId ? (
             <div className="app-main-inner" key={`${activeOrgId}-${activeTab}`}>
               {activeTab === "overview" && (
                 <Overview
@@ -266,7 +163,7 @@ function DashboardInner() {
                   orgId={activeOrgId}
                   assets={assets}
                   onAssetsChange={updateAssets}
-                  onUseInCreator={(asset) => {
+                  onUseInCreator={() => {
                     // Switch to creator tab with asset pre-loaded
                     setActiveTab("creator");
                   }}

@@ -1,13 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
 
+type InsightType = "gap" | "timing" | "format" | "hashtag" | "spike";
+type InsightPriority = "high" | "medium" | "low";
+
+interface CompetitorPostInput {
+  username: string;
+  caption: string;
+  likeCount: number;
+  timestamp: string;
+  hashtags: string[];
+}
+
+interface YourPostInput {
+  caption: string;
+  avgEngagement?: number | string;
+}
+
+interface AnalyzeRequestBody {
+  businessName: string;
+  category: string;
+  yourPosts?: YourPostInput[];
+  competitorPosts: CompetitorPostInput[];
+}
+
+interface ModelInsight {
+  type: InsightType;
+  title: string;
+  body: string;
+  suggestedPrompt: string;
+  priority: InsightPriority;
+}
+
+interface ParsedModelResponse {
+  insights?: ModelInsight[];
+}
+
+interface OpenAIChatCompletionResponse {
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
+}
+
 export async function POST(req: NextRequest) {
   try {
+    const body = (await req.json()) as AnalyzeRequestBody;
     const {
       businessName,
       category,
       yourPosts,
       competitorPosts,
-    } = await req.json();
+    } = body;
 
     // If no API key, return mock insights
     const apiKey = process.env.OPENAI_API_KEY;
@@ -49,7 +93,7 @@ Analyze these competitors for ${businessName} (Category: ${category}):
 
 ${competitorPosts
   .map(
-    (post: any) => `
+    (post: CompetitorPostInput) => `
 - Username: ${post.username}
   Caption: ${post.caption}
   Likes: ${post.likeCount}
@@ -62,7 +106,7 @@ ${competitorPosts
 Our recent posts:
 ${(yourPosts || [])
   .map(
-    (post: any) => `
+    (post: YourPostInput) => `
 - Caption: ${post.caption}
   Average engagement: ${post.avgEngagement || "unknown"}
 `
@@ -98,15 +142,21 @@ Provide 3-5 specific, actionable insights based on this data.`;
       return NextResponse.json({ insights: mockInsights });
     }
 
-    const data = await response.json();
-    const content = data.choices[0].message.content;
+    const data = (await response.json()) as OpenAIChatCompletionResponse;
+    const content = data.choices?.[0]?.message?.content;
+
+    if (!content) {
+      const { getMockInsights } = await import("@/lib/mockInsights");
+      const mockInsights = getMockInsights({}, businessName);
+      return NextResponse.json({ insights: mockInsights });
+    }
 
     // Parse the JSON response
-    let parsed;
+    let parsed: ParsedModelResponse;
     try {
       // Try to extract JSON from the response if it's wrapped in markdown
       const jsonMatch = content.match(/\{[\s\S]*\}/);
-      parsed = JSON.parse(jsonMatch ? jsonMatch[0] : content);
+      parsed = JSON.parse(jsonMatch ? jsonMatch[0] : content) as ParsedModelResponse;
     } catch (e) {
       console.error("Failed to parse GPT response:", e);
       // Fallback to mock
@@ -116,7 +166,7 @@ Provide 3-5 specific, actionable insights based on this data.`;
     }
 
     // Enrich with IDs and timestamps
-    const insights = (parsed.insights || []).map((insight: any, idx: number) => ({
+    const insights = (parsed.insights || []).map((insight, idx) => ({
       id: `insight-${Date.now()}-${idx}`,
       ...insight,
       createdAt: new Date().toISOString(),
@@ -132,7 +182,7 @@ Provide 3-5 specific, actionable insights based on this data.`;
       const { getMockInsights } = await import("@/lib/mockInsights");
       const mockInsights = getMockInsights({}, "Your Business");
       return NextResponse.json({ insights: mockInsights });
-    } catch (fallbackError) {
+    } catch {
       return NextResponse.json(
         { error: "Failed to generate insights" },
         { status: 500 }
