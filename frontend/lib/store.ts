@@ -101,6 +101,33 @@ export interface BrandProfile {
   keywords: string[];
 }
 
+// Shared vocabularies — Brand DNA and the first-run wizard must offer the same
+// options, otherwise a tone saved in one place doesn't match the other.
+export const TONES = [
+  "Friendly & Approachable",
+  "Professional & Corporate",
+  "Witty & Humorous",
+  "Energetic & Bold",
+];
+
+export const CATEGORIES = [
+  "Coffee Shop",
+  "Restaurant",
+  "Bakery",
+  "Salon & Beauty",
+  "Fitness Studio",
+  "Retail Store",
+  "Other",
+];
+
+// Best posting slot per platform, used to spread starter content sensibly.
+export const PLATFORM_BEST_TIME: Record<Platform, string> = {
+  instagram: "18:00",
+  facebook: "12:00",
+  x: "14:00",
+  google: "09:00",
+};
+
 export type Connections = Record<Platform, boolean>;
 
 // ─── Org types ───────────────────────────────────────────────────────────────
@@ -153,13 +180,15 @@ function remove(key: string) {
 
 // ─── Defaults ────────────────────────────────────────────────────────────────
 
+// A brand-new workspace starts blank — the first-run wizard fills this in with
+// the user's own business. Nothing here is pre-populated with sample content,
+// so nobody lands inside a demo business that isn't theirs.
 export const DEFAULT_BRAND: BrandProfile = {
-  businessName: "The Daily Grind",
-  category: "Coffee Shop",
-  tone: "Friendly & Approachable",
-  audience:
-    "Local professionals, college students, and coffee enthusiasts in the downtown area.",
-  keywords: ["specialty coffee", "cozy", "locally roasted"],
+  businessName: "",
+  category: "",
+  tone: TONES[0],
+  audience: "",
+  keywords: [],
 };
 
 export const DEFAULT_BRAND_KIT: BrandKit = {
@@ -215,7 +244,7 @@ export function createOrg(name: string, category: string): Org {
   const brand: BrandProfile = {
     businessName: name,
     category,
-    tone: "Friendly & Approachable",
+    tone: TONES[0],
     audience: "",
     keywords: [],
   };
@@ -228,12 +257,24 @@ export function createOrg(name: string, category: string): Org {
   return org;
 }
 
+// ─── First-run state ─────────────────────────────────────────────────────────
+
+// An org is "onboarded" once the wizard has captured its business identity.
+// Until then the dashboard shows the wizard instead of empty/borrowed data.
+export function isOnboarded(orgId: string): boolean {
+  return read<boolean>(orgKey(orgId, "onboarded"), false);
+}
+
+export function setOnboarded(orgId: string) {
+  write(orgKey(orgId, "onboarded"), true);
+}
+
 export function deleteOrg(orgId: string) {
   const orgs = getOrgs().filter((o) => o.id !== orgId);
   saveOrgs(orgs);
 
   // Clean up namespaced data
-  for (const suffix of ["posts", "brand", "connections", "generations", "brand-kit", "assets", "reviews", "competitors", "competitor-posts", "insights"]) {
+  for (const suffix of ["posts", "brand", "connections", "generations", "brand-kit", "assets", "reviews", "competitors", "competitor-posts", "insights", "onboarded"]) {
     remove(orgKey(orgId, suffix));
   }
 
@@ -271,6 +312,7 @@ export function ensureMigrated(): string {
 
   const orgId = newOrgId();
   const brand = legacyBrand ?? DEFAULT_BRAND;
+  const hasLegacyData = Boolean(legacyBrand || legacyPosts || legacyConnections);
 
   const org: Org = {
     id: orgId,
@@ -284,9 +326,13 @@ export function ensureMigrated(): string {
 
   // Move legacy data into the org namespace
   write(orgKey(orgId, "brand"), brand);
-  write(orgKey(orgId, "posts"), legacyPosts ?? seedPosts());
+  write(orgKey(orgId, "posts"), legacyPosts ?? []);
   write(orgKey(orgId, "connections"), legacyConnections ?? DEFAULT_CONNECTIONS);
   write(orgKey(orgId, "generations"), legacyGenerations ?? 0);
+
+  // Returning users already have a configured workspace — don't make them sit
+  // through the wizard. Genuinely new users get it.
+  if (hasLegacyData) setOnboarded(orgId);
 
   // Clean up old flat keys
   for (const key of Object.values(LEGACY_KEYS)) {
@@ -306,47 +352,10 @@ export function toDateKey(d: Date): string {
   return `${d.getFullYear()}-${m}-${day}`;
 }
 
-function seedPosts(): ScheduledPost[] {
-  const today = new Date();
-  const at = (offset: number) => {
-    const d = new Date(today);
-    d.setDate(d.getDate() + offset);
-    return toDateKey(d);
-  };
-  return [
-    {
-      id: "seed-1",
-      date: at(0),
-      platform: "instagram",
-      title: "Morning Coffee Special",
-      caption: "Start your day right — 20% off all lattes before 10am. ☕",
-      status: "scheduled",
-    },
-    {
-      id: "seed-2",
-      date: at(1),
-      platform: "facebook",
-      title: "Meet the Barista: James",
-      caption: "Say hi to James, the friendly face behind your morning brew.",
-      status: "scheduled",
-    },
-    {
-      id: "seed-3",
-      date: at(4),
-      platform: "google",
-      title: "Weekend Brunch Menu Drop",
-      caption: "New brunch menu launches this weekend — see what's cooking.",
-      status: "draft",
-    },
-  ];
-}
-
+// Posts are never seeded with sample content. A new workspace gets its starter
+// posts from the first-run wizard, written for the user's own business.
 export function getPosts(orgId: string): ScheduledPost[] {
-  const existing = read<ScheduledPost[] | null>(orgKey(orgId, "posts"), null);
-  if (existing) return existing;
-  const seeded = seedPosts();
-  write(orgKey(orgId, "posts"), seeded);
-  return seeded;
+  return read<ScheduledPost[]>(orgKey(orgId, "posts"), []);
 }
 
 export function savePosts(orgId: string, posts: ScheduledPost[]) {

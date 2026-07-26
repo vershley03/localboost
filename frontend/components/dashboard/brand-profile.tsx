@@ -4,29 +4,14 @@ import { useState } from "react";
 import { XIcon, FingerprintIcon, PaletteIcon, FolderIcon } from "@/components/icons";
 import { useToast } from "@/components/toast";
 import {
+  CATEGORIES,
+  TONES,
   type BrandProfile,
   type BrandKit,
   type BrandAsset,
 } from "@/lib/store";
 import { BrandKitTab } from "./brand-kit";
 import { AssetLibrary } from "./asset-library";
-
-const TONES = [
-  "Friendly & Approachable",
-  "Professional & Corporate",
-  "Witty & Humorous",
-  "Energetic & Bold",
-];
-
-const CATEGORIES = [
-  "Coffee Shop",
-  "Restaurant",
-  "Bakery",
-  "Salon & Beauty",
-  "Fitness Studio",
-  "Retail Store",
-  "Other",
-];
 
 type BrandSubTab = "identity" | "brand-kit" | "assets";
 

@@ -12,18 +12,21 @@ import { CompetitorWatch } from "@/components/dashboard/competitor-watch";
 import { Integrations } from "@/components/dashboard/integrations";
 import { OrgModal } from "@/components/dashboard/org-switcher";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
+import { Onboarding } from "@/components/dashboard/onboarding";
 import { useUser, UserButton } from "@clerk/nextjs";
 import { useDashboardOrgState } from "@/lib/useDashboardOrgState";
 
+// Returns "" when we don't know the user's name — the greeting drops the name
+// rather than inventing one.
 function parseStoredUserName(): string {
-  if (typeof window === "undefined") return "Sarah";
+  if (typeof window === "undefined") return "";
 
   const stored = window.localStorage.getItem("lb:username");
-  if (!stored) return "Sarah";
+  if (!stored) return "";
 
   try {
     const parsed = JSON.parse(stored);
-    return typeof parsed === "string" ? parsed : "Sarah";
+    return typeof parsed === "string" ? parsed : "";
   } catch {
     return stored;
   }
@@ -43,10 +46,11 @@ function DashboardInner() {
     brandKit,
     assets,
     connections,
-    generationCount,
     setGenerationCount,
     competitors,
     insights,
+    onboarded,
+    completeOnboarding,
     switchOrg,
     createAndSelectOrg,
     updatePosts,
@@ -87,7 +91,26 @@ function DashboardInner() {
     toast("Organization created successfully");
   };
 
-  const displayName = user ? (user.firstName || user.username || "User") : userName;
+  const displayName = (user ? user.firstName || user.username : userName) || "";
+
+  // A workspace that hasn't been set up yet gets the first-run wizard instead
+  // of a dashboard full of numbers about a business we know nothing about.
+  if (activeOrgId && !onboarded) {
+    return (
+      <Onboarding
+        brand={brand}
+        onComplete={(nextBrand, starterPosts) => {
+          completeOnboarding(nextBrand, starterPosts);
+          setActiveTab(starterPosts.length > 0 ? "calendar" : "overview");
+          toast(
+            starterPosts.length > 0
+              ? `${starterPosts.length} drafts added to your calendar`
+              : "You can finish setting up in Brand DNA any time",
+          );
+        }}
+      />
+    );
+  }
 
   return (
     <div className="app-shell">
@@ -103,7 +126,7 @@ function DashboardInner() {
         {activeOrgId && (
           <header className="app-header-desktop">
             <div className="app-header-left">
-              <span className="org-badge">{brand.businessName}</span>
+              <span className="org-badge">{brand.businessName || "Your workspace"}</span>
             </div>
             <div className="app-header-right">
               <NotificationBell posts={posts} />
@@ -126,7 +149,8 @@ function DashboardInner() {
               {activeTab === "overview" && (
                 <Overview
                   posts={posts}
-                  generationCount={generationCount}
+                  connections={connections}
+                  orgId={activeOrgId}
                   businessName={brand.businessName}
                   onNavigate={setActiveTab}
                   userName={displayName}

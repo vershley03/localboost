@@ -16,6 +16,8 @@ import {
   getInsights,
   getOrgs,
   getPosts,
+  isOnboarded,
+  setOnboarded,
   saveAssets,
   saveBrand,
   saveBrandKit,
@@ -53,6 +55,7 @@ interface InitialDashboardOrgState {
   generationCount: number;
   competitors: TrackedCompetitor[];
   insights: CompetitorInsight[];
+  onboarded: boolean;
   cleanupQueryParams: boolean;
   startupToast?: StartupToast;
 }
@@ -76,6 +79,7 @@ function getInitialDashboardOrgState(): InitialDashboardOrgState {
       generationCount: 0,
       competitors: [],
       insights: [],
+      onboarded: true,
       cleanupQueryParams: false,
     };
   }
@@ -120,6 +124,7 @@ function getInitialDashboardOrgState(): InitialDashboardOrgState {
     generationCount: getGenerationCount(migratedId),
     competitors: getCompetitors(migratedId),
     insights: getInsights(migratedId),
+    onboarded: isOnboarded(migratedId),
     cleanupQueryParams,
     startupToast,
   };
@@ -137,6 +142,7 @@ export function useDashboardOrgState() {
   const [generationCount, setGenerationCount] = useState(initial.generationCount);
   const [competitors, setCompetitors] = useState<TrackedCompetitor[]>(initial.competitors);
   const [insights, setInsights] = useState<CompetitorInsight[]>(initial.insights);
+  const [onboarded, setOnboardedState] = useState(initial.onboarded);
 
   const loadOrgData = (orgId: string) => {
     setPosts(getPosts(orgId));
@@ -147,6 +153,7 @@ export function useDashboardOrgState() {
     setGenerationCount(getGenerationCount(orgId));
     setCompetitors(getCompetitors(orgId));
     setInsights(getInsights(orgId));
+    setOnboardedState(isOnboarded(orgId));
   };
 
   const switchOrg = (orgId: string) => {
@@ -198,6 +205,17 @@ export function useDashboardOrgState() {
     saveInsights(activeOrgId, next);
   };
 
+  /**
+   * Closes out the first-run wizard: saves the captured brand, drops the
+   * starter posts on the calendar, and marks the workspace as set up.
+   */
+  const completeOnboarding = (nextBrand: BrandProfile, starterPosts: ScheduledPost[]) => {
+    updateBrand(nextBrand);
+    if (starterPosts.length > 0) updatePosts([...posts, ...starterPosts]);
+    setOnboarded(activeOrgId);
+    setOnboardedState(true);
+  };
+
   return {
     activeTab: initial.activeTab,
     startupToast: initial.startupToast,
@@ -213,6 +231,8 @@ export function useDashboardOrgState() {
     setGenerationCount,
     competitors,
     insights,
+    onboarded,
+    completeOnboarding,
     switchOrg,
     createAndSelectOrg,
     updatePosts,
